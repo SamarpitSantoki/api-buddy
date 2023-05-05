@@ -23,6 +23,8 @@ function Input(props: InputProps) {
       id={id}
       placeholder={props.placeholder}
       aria-label={props.label}
+      value={props.value}
+      onChange={props.onChange}
     />
   );
 }

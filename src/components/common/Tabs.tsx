@@ -17,6 +17,7 @@ function Tabs(props: TabsProps) {
         className="flex flex-row flex-wrap pl-0 mb-5 list-none border-b-0"
         role="tablist"
         data-te-nav-ref
+        defaultChecked={true}
       >
         {props.tabs.map((tab, index) => (
           <li role="presentation" key={index}>
@@ -27,6 +28,7 @@ function Tabs(props: TabsProps) {
               data-te-target={`#tabs-${tab.id}`}
               role="tab"
               aria-controls={`tabs-${tab.id}`}
+              // conditially add active class
             >
               {tab.label}
             </a>
@@ -34,7 +36,7 @@ function Tabs(props: TabsProps) {
         ))}
       </ul>
 
-      <div className="mb-6">
+      <div className="w-full mb-6">
         {props.tabs.map((tab, index) => (
           <div
             key={index}
