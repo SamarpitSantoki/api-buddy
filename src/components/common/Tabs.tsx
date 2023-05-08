@@ -1,19 +1,19 @@
 "use client";
-import { useEffect } from "react";
-import { Tab, initTE } from "tw-elements";
+import { useEffect, useState } from "react";
 
 type TabsProps = {
   tabs: Array<{ id: string; label: string; content: JSX.Element }>;
+  closePlayground?: (index: number) => void;
+  className?: string;
+  isCloseable?: boolean;
 };
 
 function Tabs(props: TabsProps) {
-  useEffect(() => {
-    initTE({ Tab });
-  }, []);
+  const [activeTab, setActiveTab] = useState(0);
 
   return (
     <>
-      <ul
+      {/* <ul
         className="flex flex-row flex-wrap pl-0 mb-5 list-none border-b-0"
         role="tablist"
         data-te-nav-ref
@@ -34,16 +34,60 @@ function Tabs(props: TabsProps) {
             </a>
           </li>
         ))}
-      </ul>
+      </ul> */}
 
-      <div className="w-full mb-6">
+      <div className={"z-10 w-full tabs "}>
+        {props.tabs.map((tab, index) => (
+          <a
+            key={index}
+            className={
+              "group tab  tab-lifted flex gap-x-1 " +
+              props.className +
+              (index === activeTab ? " tab-active" : "")
+            }
+            onClick={() => setActiveTab(index)}
+          >
+            <div>{tab.label}</div>
+            {props.isCloseable && (
+              <button
+                onClick={() => {
+                  console.log("close playground", index);
+                  props?.closePlayground?.(index);
+                }}
+                className={
+                  "z-40  stroke-current group-hover:block group-hover:stroke-red-500" +
+                  (index === activeTab ? " block" : " hidden")
+                }
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+          </a>
+        ))}
+      </div>
+
+      <div className="w-full h-auto mb-6">
         {props.tabs.map((tab, index) => (
           <div
             key={index}
-            className="hidden opacity-100 transition-opacity duration-150 ease-linear data-[te-tab-active]:block"
-            id={`tabs-${tab.id}`}
-            role="tabpanel"
-            aria-labelledby={`tabs-${tab.id}-tab`}
+            className={
+              index === activeTab
+                ? ""
+                : "hidden" +
+                  "  opacity-100 transition-opacity duration-150 ease-linear data-[te-tab-active]:block"
+            }
           >
             {tab.content}
           </div>

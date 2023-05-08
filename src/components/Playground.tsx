@@ -11,6 +11,8 @@ import axios from "axios";
 import { usePlayground } from "@/hooks/usePlayground";
 import Input from "./common/Input";
 import { TGetRequestResponse } from "@/types/types";
+import { Editor } from "@monaco-editor/react";
+import prettyBytes from "@/helpers/prettyBytes";
 
 function Playground({ data }: { data: TGetRequestResponse }) {
   const {
@@ -36,6 +38,7 @@ function Playground({ data }: { data: TGetRequestResponse }) {
     saveRequest,
     title,
     setTitle,
+    isSaving,
   } = usePlayground();
 
   const id = useId().split(":")[1];
@@ -55,7 +58,8 @@ function Playground({ data }: { data: TGetRequestResponse }) {
         requestBody: data.jsonParams,
         queryParams: JSON.parse(data.queryParams || "[]"),
         requestHeaders: JSON.parse(data.headerParams || "[]"),
-        title: data.label,
+        title: data.title,
+        label: data.label,
         id: data.id,
       });
     }
@@ -74,19 +78,35 @@ function Playground({ data }: { data: TGetRequestResponse }) {
   }, []);
 
   return (
-    <div className="relative ">
-      <div className="relative flex flex-wrap items-stretch mb-4 ">
-        <Input
-          label="Title"
+    <div className="relative flex flex-col w-full p-4 border border-base-300 gap-y-4 h-4/5">
+      <div className="flex justify-between ">
+        <input
           type="text"
-          placeholder="Title"
-          onChange={(e) => {
-            setTitle(e.target.value);
-          }}
+          placeholder="Type here"
+          className="p-2 prose h-min input input-ghost "
           value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
+        <div className="flex gap-4 ">
+          <button
+            className={`btn btn-primary text-secondary-content  ${
+              isSaving ? "loading" : ""
+            }`}
+            onClick={saveRequest}
+          >
+            {isSaving ? "Saving.." : "Save"}
+          </button>
+          <button
+            className={`btn btn-error text-secondary-content  ${
+              isSaving ? "loading" : ""
+            }`}
+            onClick={saveRequest}
+          >
+            {isSaving ? "Deleting" : "Delete"}
+          </button>
+        </div>
       </div>
-      <div className="relative flex flex-wrap items-stretch mb-4">
+      <div className="container mb-4 input-group text-base-content">
         <GroupSelect
           label="Type"
           options={
@@ -95,22 +115,25 @@ function Playground({ data }: { data: TGetRequestResponse }) {
               label: key,
             })) as Array<{ value: string; label: string }>
           }
-          value={requestType}
+          value={"GET"}
           onChange={handleRequestTypeChange}
-          className="rounded-r-none"
+          className="flex-grow"
         />
+
         <GroupInput
           label="URL"
           type="text"
           value={requestUrl}
           onChange={handleRequestUrlChange}
           placeholder="https://api.example.com/..."
-          className="rounded-none"
+          className="flex-grow rounded-none input-md"
         />
+
         <GroupButton label="Send" onClick={sendRequest} />
       </div>
 
       <Tabs
+        className="tab-md"
         tabs={[
           {
             id: "query-params" + id,
@@ -139,7 +162,31 @@ function Playground({ data }: { data: TGetRequestResponse }) {
           {
             id: "json" + id,
             label: "JSON",
-            content: <div className="flex flex-col">JSON</div>,
+            content: (
+              <div className="flex flex-col">
+                {
+                  <Editor
+                    height="25vh"
+                    theme="vs-dark"
+                    defaultValue={JSON.stringify(requestBody, null, 2)}
+                    defaultLanguage={"json"}
+                    options={{
+                      minimap: {
+                        enabled: false,
+                      },
+                      matchBrackets: "always",
+                      bracketPairColorization: {
+                        enabled: true,
+                        independentColorPoolPerBracketType: true,
+                      },
+                      colorDecorators: true,
+                      defaultColorDecorators: true,
+                    }}
+                    onChange={handleRequestBodyChange}
+                  />
+                }
+              </div>
+            ),
           },
         ]}
       />
@@ -150,28 +197,28 @@ function Playground({ data }: { data: TGetRequestResponse }) {
           <div>
             <span>
               <span className="text-gray-500">Status:</span>{" "}
-              <span className="text-gray-200">{response.status}</span>
-            </span>
-
-            <span className="ml-4">
-              <span className="text-gray-500">Time:</span>{" "}
-              <span className="text-gray-200">
-                {(response as any)?.customData?.time} ms
+              <span
+                className={
+                  response.status >= 200 && response.status < 300
+                    ? "text-green-500"
+                    : "text-red-500"
+                }
+              >
+                {response.status}
               </span>
             </span>
 
-            <span className="ml-4">
-              <span className="text-gray-500">Size:</span>{" "}
-              <span className="text-gray-200">
-                {(
-                  new Blob([
-                    JSON.stringify({
-                      ...response.data,
-                      ...response.headers,
-                    }),
-                  ]).size / 1024
-                ).toFixed(2)}{" "}
-                kb
+            <span className="ml-4 prose">
+              <span className="">Time:</span>{" "}
+              <span className="">{(response as any)?.customData?.time} ms</span>
+            </span>
+
+            <span className="ml-4 prose">
+              <span className="">Size:</span>{" "}
+              <span className="prose">
+                {prettyBytes(
+                  new TextEncoder().encode(JSON.stringify(response.data)).length
+                )}
               </span>
             </span>
           </div>
@@ -179,16 +226,38 @@ function Playground({ data }: { data: TGetRequestResponse }) {
           <Tabs
             tabs={[
               {
-                id: "raw" + id,
-                label: "RAW",
+                id: "json" + id,
+                label: "Json",
 
                 content: (
-                  <div className="w-full h-full p-4 bg-gray-800 rounded bg-opacity-60">
+                  <div className="w-full h-full p-4 rounded bg-neutral-100">
                     <pre className="overflow-x-scroll leading-7 text-white">
-                      {typeof response === "object"
-                        ? JSON.stringify(response, null, 2)
-                        : response}
+                      <Editor
+                        height="25vh"
+                        theme="vs-dark"
+                        defaultLanguage={"json"}
+                        value={JSON.stringify(response.data, null, 2)}
+                        options={{
+                          readOnly: true,
+                          minimap: {
+                            enabled: false,
+                          },
+                        }}
+                      />
                     </pre>
+                  </div>
+                ),
+              },
+              {
+                id: "raw" + id,
+                label: "Raw",
+                content: (
+                  <div className="w-full h-full p-4 rounded bg-neutral-100 ">
+                    <p className="prose">
+                      {JSON.stringify({
+                        ...response.data,
+                      })}
+                    </p>
                   </div>
                 ),
               },
@@ -197,11 +266,7 @@ function Playground({ data }: { data: TGetRequestResponse }) {
                 label: "Preview",
                 content: (
                   <div className="w-full h-full p-4 rounded bg-neutral-100">
-                    <iframe
-                      srcDoc={response.data}
-                      className="w-full h-full"
-                      height={500}
-                    ></iframe>
+                    <iframe srcDoc={response.data} className="w-full h-full" />
                   </div>
                 ),
               },

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import Input from "../common/Input";
 import Button from "../common/Button";
+import useKeyPress from "@/hooks/useKeyPress";
 
 type RequestHeadersProps = {
   queryParams: Array<{ key: string; value: string }>;
@@ -13,12 +14,17 @@ type RequestHeadersProps = {
   removeQueryParam: (index: number) => void;
 };
 
+const initialState = { selectedIndex: 0 };
+
 function QueryParams({
   queryParams,
   addQueryParam,
   onQueryParamChange,
   removeQueryParam,
 }: RequestHeadersProps) {
+  const arrowUpPressed = useKeyPress("ArrowUp");
+  const arrowDownPressed = useKeyPress("ArrowDown");
+
   return (
     <div className="flex flex-col gap-y-8 ">
       <div className="flex flex-col gap-y-4">

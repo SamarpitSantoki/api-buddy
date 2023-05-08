@@ -48,3 +48,29 @@ export async function GET(request: Request) {
 
   return new Response(JSON.stringify(response));
 }
+
+export async function DELETE(request: Request) {
+  const req = await request.json();
+  let response = {};
+
+  try {
+    const entry = await prisma.request.delete({
+      where: {
+        id: req?.id || 0,
+      },
+    });
+
+    response = {
+      data: entry,
+      status: true,
+    };
+  } catch (e) {
+    response = {
+      data: [],
+      status: false,
+    };
+
+    console.log(e);
+  }
+  return new Response(JSON.stringify(response));
+}

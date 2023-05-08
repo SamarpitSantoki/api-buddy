@@ -12,5 +12,10 @@ module.exports = {
     },
   },
   darkMode: "className",
-  plugins: [require("tw-elements/dist/plugin.cjs")],
+  plugins: [require("daisyui")],
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("tw-elements/dist/plugin.cjs"),
+    require("daisyui"),
+  ],
 };

@@ -3,10 +3,12 @@
 import { API_REQUEST_TYPE } from "@/constants/constants";
 import { CreateRequestType } from "@/types/types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { type } from "os";
 import { useState } from "react";
 
 export const usePlayground = () => {
   const [title, setTitle] = useState<string>("");
+  const [lable, setLabel] = useState<string>("");
 
   const [playgroundState, setPlaygroundState] = useState({
     isSaved: false,
@@ -19,6 +21,7 @@ export const usePlayground = () => {
   const [requestUrl, setrequestUrl] = useState<string>("");
   const [requestBody, setRequestBody] = useState<string>("");
   const [response, setResponse] = useState<AxiosResponse>();
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const [queryParams, setQueryParams] = useState<
     Array<{ key: string; value: string }>
@@ -38,14 +41,25 @@ export const usePlayground = () => {
   };
 
   const setPlaygroundStateFromRemote = (data: any) => {
+    console.log("data", data);
+
     setRequestType(data.requestType);
     setrequestUrl(data.requestUrl);
     setRequestBody(data.requestBody);
     setResponse(data.response);
-    setQueryParams(data.queryParams);
-    setRequestHeaders(data.requestHeaders);
+    setQueryParams(
+      typeof data.queryParams === "string"
+        ? JSON.parse(data.queryParams)
+        : data.queryParams
+    );
+    setRequestHeaders(
+      typeof data.requestHeaders === "string"
+        ? JSON.parse(data.requestHeaders)
+        : data.requestHeaders
+    );
     setTitle(data.title);
     setRequestId(data.id);
+    setLabel(data.label);
   };
 
   const handleRequestTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -56,13 +70,16 @@ export const usePlayground = () => {
     setrequestUrl(e.target.value);
   };
 
-  const handleRequestBodyChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    setRequestBody(e.target.value);
+  const handleRequestBodyChange = (value: string | undefined) => {
+    setRequestBody(value || "");
   };
 
   const addQueryParam = () => {
+    if (!!!queryParams) {
+      setQueryParams([{ key: "", value: "" }]);
+      return;
+    }
+
     setQueryParams([...queryParams, { key: "", value: "" }]);
   };
 
@@ -100,13 +117,18 @@ export const usePlayground = () => {
 
   const onRequestHeadersChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
+    name: string
   ) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
 
     setRequestHeaders(
       requestHeaders?.map((param, i) => {
         if (i === index) {
+          if (name === "key") {
+            return { ...param, key: value };
+          }
+
           return { ...param, value };
         }
         return param;
@@ -140,14 +162,15 @@ export const usePlayground = () => {
       const response = await axios.request(settings);
       setResponse(response);
 
-      saveRequest();
+      // saveRequest();
     } catch (error: any) {
       setResponse(error);
-      saveRequest();
+      // saveRequest();
     }
   };
 
   const saveRequest = async () => {
+    setIsSaving(true);
     const payload: CreateRequestType = {
       id: requestId,
       label: title.split(" ").join("-").toLowerCase(),
@@ -168,10 +191,28 @@ export const usePlayground = () => {
         isActive: false,
       });
 
-      setPlaygroundStateFromRemote(data);
+      setPlaygroundStateFromRemote(data.data);
 
       console.log(data);
     }
+
+    setIsSaving(false);
+  };
+
+  const deleteRequest = async () => {
+    const { data } = await axios.delete(`/api/request/${requestId}`);
+
+    if (data.status) {
+      setPlaygroundState({
+        isSaved: false,
+        isEdited: false,
+        isActive: false,
+      });
+
+      setPlaygroundToDefault();
+    }
+
+    setIsSaving(false);
   };
 
   return {
@@ -197,5 +238,8 @@ export const usePlayground = () => {
     saveRequest,
     title,
     setTitle,
+    isSaving,
+    lable,
+    setLabel,
   };
 };
