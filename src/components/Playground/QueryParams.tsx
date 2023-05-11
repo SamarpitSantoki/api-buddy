@@ -22,9 +22,6 @@ function QueryParams({
   onQueryParamChange,
   removeQueryParam,
 }: RequestHeadersProps) {
-  const arrowUpPressed = useKeyPress("ArrowUp");
-  const arrowDownPressed = useKeyPress("ArrowDown");
-
   return (
     <div className="flex flex-col gap-y-8 ">
       <div className="flex flex-col gap-y-4">

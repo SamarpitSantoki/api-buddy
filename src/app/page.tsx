@@ -3,7 +3,19 @@ import Playground from "@/components/Playground";
 import SideBar from "@/components/Playground/SideBar";
 import Button from "@/components/common/Button";
 import Tabs from "@/components/common/Tabs";
-import { CreateRequestType, TGetRequestResponse } from "@/types/types";
+import {
+  addActivePlayground,
+  addActivePlaygrounds,
+  addPlaygrounds,
+  playgroundSliceState,
+  removeActivePlayground,
+} from "@/redux/features/playground/playgroundSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  CreateRequestType,
+  IPlayground,
+  TGetRequestResponse,
+} from "@/types/types";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -14,37 +26,59 @@ async function getRequests() {
 }
 
 function Home() {
-  const [availablePlaygrounds, setAvailablePlaygrounds] = useState<
-    Array<TGetRequestResponse>
-  >([]);
-  const [activePlayground, setActivePlayground] = useState<
-    Array<TGetRequestResponse>
-  >([]);
+  const { activePlaygrounds, currentPlayground, playgrounds } =
+    useAppSelector(playgroundSliceState);
+
+  const dispatch = useAppDispatch();
+
+  // const [availablePlaygrounds, setAvailablePlaygrounds] = useState<
+  //   Array<TGetRequestResponse>
+  // >([]);
+  // const [activePlayground, setActivePlayground] = useState<
+  //   Array<TGetRequestResponse>
+  // >([]);
 
   useEffect(() => {
     getRequests().then((data) => {
-      setAvailablePlaygrounds(data);
+      dispatch(addPlaygrounds(data));
     });
   }, []);
 
-  const openPlayground = (data: TGetRequestResponse) => {
-    if (activePlayground.find((tab) => tab.id === data.id)) return;
-    if (activePlayground.length === 0) {
-      setActivePlayground([data]);
+  const openPlayground = (data: IPlayground) => {
+    // if (activePlayground.find((tab) => tab.id === data.id)) return;
+
+    if (activePlaygrounds.find((tab) => tab.id === data.id)) return;
+
+    if (activePlaygrounds.length === 0) {
+      dispatch(addActivePlaygrounds([data]));
       return;
     }
-    setActivePlayground([...activePlayground, data]);
+
+    dispatch(addActivePlayground(data));
   };
 
-  const closePlayground = (index: number) => {
-    setActivePlayground(activePlayground.filter((_, i) => i !== index));
+  const closePlayground = async (id: number) => {
+    // setActivePlayground(activePlayground.filter((_, i) => i !== index));
+
+    // // click on the
+    // getRequests().then((data) => {
+    //   setAvailablePlaygrounds(data);
+    // });
+
+    dispatch(removeActivePlayground(id));
+
+    getRequests().then((data) => {
+      dispatch(addPlaygrounds(data));
+    });
+
+    // dispatch(addActivePlayground(data));
   };
 
   return (
     <div className="flex">
       <div className="flex items-start justify-center w-1/6 p-4">
         <SideBar
-          availablePlaygrounds={availablePlaygrounds}
+          availablePlaygrounds={playgrounds}
           openPlayground={openPlayground}
         />
       </div>
@@ -53,9 +87,9 @@ function Home() {
           isCloseable
           className="tab-lg"
           closePlayground={closePlayground}
-          tabs={activePlayground.map((tab) => {
+          tabs={activePlaygrounds.map((tab) => {
             return {
-              id: tab.label!.split(" ").join("-").toLowerCase(),
+              id: tab.id,
               label: tab!.label!,
               content: <Playground data={tab} />,
             };

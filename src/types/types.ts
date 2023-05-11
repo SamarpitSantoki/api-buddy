@@ -16,3 +16,17 @@ export type TGetRequestResponse = Prisma.RequestGetPayload<{
     title: true;
   };
 }>;
+
+export interface IPlayground {
+  id: number;
+  title: string | null;
+  label: string | null;
+  headerParams: string | null;
+  queryParams: string | null;
+  jsonParams: string | null;
+  requestUrl: string;
+  requestMethod: string;
+  responseSize: number | null;
+  responseStatus: string | null;
+  responseTime: number | null;
+}

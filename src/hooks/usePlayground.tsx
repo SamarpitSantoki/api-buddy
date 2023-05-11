@@ -1,12 +1,19 @@
 // create a custom hook to handle the playground state
 
 import { API_REQUEST_TYPE } from "@/constants/constants";
+import {
+  getPlaygrounds,
+  removeActivePlayground,
+} from "@/redux/features/playground/playgroundSlice";
+import { useAppDispatch } from "@/redux/hooks";
 import { CreateRequestType } from "@/types/types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { type } from "os";
 import { useState } from "react";
 
 export const usePlayground = () => {
+  const dispatch = useAppDispatch();
+
   const [title, setTitle] = useState<string>("");
   const [lable, setLabel] = useState<string>("");
 
@@ -19,7 +26,7 @@ export const usePlayground = () => {
   const [requestId, setRequestId] = useState<number>(-1);
   const [requestType, setRequestType] = useState(API_REQUEST_TYPE.GET);
   const [requestUrl, setrequestUrl] = useState<string>("");
-  const [requestBody, setRequestBody] = useState<string>("");
+  const [jsonParams, setJsonParams] = useState<string>("");
   const [response, setResponse] = useState<AxiosResponse>();
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -34,7 +41,7 @@ export const usePlayground = () => {
   const setPlaygroundToDefault = () => {
     setRequestType(API_REQUEST_TYPE.GET);
     setrequestUrl("");
-    setRequestBody("");
+    setJsonParams("");
     setResponse(undefined);
     setQueryParams([]);
     setRequestHeaders([]);
@@ -45,7 +52,7 @@ export const usePlayground = () => {
 
     setRequestType(data.requestType);
     setrequestUrl(data.requestUrl);
-    setRequestBody(data.requestBody);
+    setJsonParams(data.jsonParams);
     setResponse(data.response);
     setQueryParams(
       typeof data.queryParams === "string"
@@ -71,7 +78,9 @@ export const usePlayground = () => {
   };
 
   const handleRequestBodyChange = (value: string | undefined) => {
-    setRequestBody(value || "");
+    console.log("value", value);
+
+    setJsonParams(value || "");
   };
 
   const addQueryParam = () => {
@@ -139,8 +148,11 @@ export const usePlayground = () => {
   const sendRequest = async () => {
     let data = {};
 
+    console.log(requestUrl);
+
     if (!requestUrl.includes("http://") && !requestUrl.includes("https://")) {
-      setrequestUrl(`http://${requestUrl}`);
+      console.log("came here");
+      setrequestUrl(`https://${requestUrl}`);
     }
 
     queryParams?.forEach((param) => {
@@ -152,8 +164,13 @@ export const usePlayground = () => {
 
     const settings: AxiosRequestConfig = {
       method: requestType,
-      url: requestUrl,
-      data: data,
+      url: `${requestUrl}${
+        queryParams?.length > 0
+          ? "?" +
+            queryParams?.map((param) => `${param.key}=${param.value}`).join("&")
+          : ""
+      }`,
+      data: JSON.parse(jsonParams),
     };
 
     console.log(settings);
@@ -161,11 +178,10 @@ export const usePlayground = () => {
     try {
       const response = await axios.request(settings);
       setResponse(response);
-
-      // saveRequest();
     } catch (error: any) {
+      console.log("error", error);
+
       setResponse(error);
-      // saveRequest();
     }
   };
 
@@ -177,7 +193,7 @@ export const usePlayground = () => {
       title: title,
       headerParams: JSON.stringify(requestHeaders),
       queryParams: JSON.stringify(queryParams),
-      jsonParams: requestBody,
+      jsonParams: jsonParams,
       requestMethod: requestType,
       requestUrl: requestUrl,
     };
@@ -200,7 +216,7 @@ export const usePlayground = () => {
   };
 
   const deleteRequest = async () => {
-    const { data } = await axios.delete(`/api/request/${requestId}`);
+    const { data } = await axios.delete(`/api/request?id=${requestId}`);
 
     if (data.status) {
       setPlaygroundState({
@@ -208,6 +224,9 @@ export const usePlayground = () => {
         isEdited: false,
         isActive: false,
       });
+      dispatch(removeActivePlayground(requestId));
+      dispatch(getPlaygrounds());
+      document.getElementById("deleteModal")?.click();
 
       setPlaygroundToDefault();
     }
@@ -218,7 +237,7 @@ export const usePlayground = () => {
   return {
     requestType,
     requestUrl,
-    requestBody,
+    jsonParams,
     queryParams,
     requestHeaders,
     response,
@@ -241,5 +260,6 @@ export const usePlayground = () => {
     isSaving,
     lable,
     setLabel,
+    deleteRequest,
   };
 };

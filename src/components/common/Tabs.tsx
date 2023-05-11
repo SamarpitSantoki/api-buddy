@@ -2,14 +2,25 @@
 import { useEffect, useState } from "react";
 
 type TabsProps = {
-  tabs: Array<{ id: string; label: string; content: JSX.Element }>;
-  closePlayground?: (index: number) => void;
+  tabs: Array<{ id: number | string; label: string; content: JSX.Element }>;
+  closePlayground?: (id: number) => void;
   className?: string;
   isCloseable?: boolean;
 };
 
 function Tabs(props: TabsProps) {
   const [activeTab, setActiveTab] = useState(0);
+
+  useEffect(() => {
+    if (props.tabs.length > 0) {
+      setActiveTab((prev) => {
+        if (prev > props.tabs.length - 1) {
+          return props.tabs.length - 1;
+        }
+        return prev;
+      });
+    }
+  }, [props.tabs.length]);
 
   return (
     <>
@@ -40,6 +51,7 @@ function Tabs(props: TabsProps) {
         {props.tabs.map((tab, index) => (
           <a
             key={index}
+            data-active-tabs-id={`tab-${tab.label}`}
             className={
               "group tab  tab-lifted flex gap-x-1 " +
               props.className +
@@ -52,7 +64,7 @@ function Tabs(props: TabsProps) {
               <button
                 onClick={() => {
                   console.log("close playground", index);
-                  props?.closePlayground?.(index);
+                  props?.closePlayground?.(tab.id as number);
                 }}
                 className={
                   "z-40  stroke-current group-hover:block group-hover:stroke-red-500" +
@@ -86,7 +98,7 @@ function Tabs(props: TabsProps) {
               index === activeTab
                 ? ""
                 : "hidden" +
-                  "  opacity-100 transition-opacity duration-150 ease-linear data-[te-tab-active]:block"
+                  " opacity-100 transition-opacity duration-150 ease-linear data-[te-tab-active]:block"
             }
           >
             {tab.content}

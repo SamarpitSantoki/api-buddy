@@ -7,18 +7,23 @@ import GroupButton from "./common/GroupButton";
 import Tabs from "./common/Tabs";
 import QueryParams from "./Playground/QueryParams";
 import RequestHeaders from "./Playground/RequestHeaders";
-import axios from "axios";
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { usePlayground } from "@/hooks/usePlayground";
 import Input from "./common/Input";
-import { TGetRequestResponse } from "@/types/types";
+import { IPlayground } from "@/types/types";
 import { Editor } from "@monaco-editor/react";
 import prettyBytes from "@/helpers/prettyBytes";
+import { ClientRequest } from "http";
 
-function Playground({ data }: { data: TGetRequestResponse }) {
+function Playground({ data }: { data: IPlayground }) {
   const {
     requestType,
     requestUrl,
-    requestBody,
+    jsonParams,
     queryParams,
     requestHeaders,
     response,
@@ -39,23 +44,26 @@ function Playground({ data }: { data: TGetRequestResponse }) {
     title,
     setTitle,
     isSaving,
+    deleteRequest,
   } = usePlayground();
 
   const id = useId().split(":")[1];
 
-  function updateEndTime(response: any) {
-    response.customData = response.customData || {};
-    response.customData.time =
-      new Date().getTime() - response.config.customData.startTime;
+  function updateEndTime(response: AxiosResponse) {
+    response.headers.startTime = response.headers.startTime || {};
+    response.headers.time =
+      new Date().getTime() - response.config.headers.startTime;
     return response;
   }
 
   useEffect(() => {
+    console.log("this is data", data);
+
     if (data) {
       setPlaygroundStateFromRemote({
         requestType: data.requestMethod,
         requestUrl: data.requestUrl,
-        requestBody: data.jsonParams,
+        jsonParams: data.jsonParams,
         queryParams: JSON.parse(data.queryParams || "[]"),
         requestHeaders: JSON.parse(data.headerParams || "[]"),
         title: data.title,
@@ -64,14 +72,12 @@ function Playground({ data }: { data: TGetRequestResponse }) {
       });
     }
 
-    axios.interceptors.request.use((request: any) => {
-      // add field to request object
-      request.customData = request.customData || {};
-
-      request.customData.startTime = new Date().getTime();
-      console.log("Starting Request", request);
-      return request;
-    });
+    axios.interceptors.request.use(
+      (request: InternalAxiosRequestConfig<any>) => {
+        request.headers.startTime = new Date().getTime();
+        return request;
+      }
+    );
     axios.interceptors.response.use(updateEndTime, (error: any) => {
       return Promise.reject(updateEndTime(error.response));
     });
@@ -96,14 +102,15 @@ function Playground({ data }: { data: TGetRequestResponse }) {
           >
             {isSaving ? "Saving.." : "Save"}
           </button>
-          <button
+          <label
+            htmlFor="deleteModal"
             className={`btn btn-error text-secondary-content  ${
               isSaving ? "loading" : ""
             }`}
-            onClick={saveRequest}
+            // onClick={deleteRequest}
           >
             {isSaving ? "Deleting" : "Delete"}
-          </button>
+          </label>
         </div>
       </div>
       <div className="container mb-4 input-group text-base-content">
@@ -131,7 +138,34 @@ function Playground({ data }: { data: TGetRequestResponse }) {
 
         <GroupButton label="Send" onClick={sendRequest} />
       </div>
-
+      <input type="checkbox" id="deleteModal" className="modal-toggle" />
+      <label htmlFor="deleteModal" className="modal">
+        <label className="relative modal-box" htmlFor="deleteModal">
+          <button className="text-lg font-bold prose" onClick={deleteRequest}>
+            Delete <span className="text-primary">{title}</span>?
+          </button>
+          <p className="py-4 prose">
+            Are you sure you want to delete this request? This action cannot be
+            undone.
+          </p>
+          <div className="flex gap-4">
+            <button
+              className={`btn btn-primary text-secondary-content  ${
+                isSaving ? "loading" : ""
+              }`}
+              onClick={deleteRequest}
+            >
+              {isSaving ? "Deleting" : "Delete"}
+            </button>
+            <label
+              htmlFor="deleteModal"
+              className="btn btn-error text-secondary-content"
+            >
+              Cancel
+            </label>
+          </div>
+        </label>
+      </label>
       <Tabs
         className="tab-md"
         tabs={[
@@ -168,7 +202,7 @@ function Playground({ data }: { data: TGetRequestResponse }) {
                   <Editor
                     height="25vh"
                     theme="vs-dark"
-                    defaultValue={JSON.stringify(requestBody, null, 2)}
+                    defaultValue={jsonParams}
                     defaultLanguage={"json"}
                     options={{
                       minimap: {
@@ -210,7 +244,7 @@ function Playground({ data }: { data: TGetRequestResponse }) {
 
             <span className="ml-4 prose">
               <span className="">Time:</span>{" "}
-              <span className="">{(response as any)?.customData?.time} ms</span>
+              <span className="">{response.headers?.time} ms</span>
             </span>
 
             <span className="ml-4 prose">

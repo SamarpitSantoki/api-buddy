@@ -36,7 +36,7 @@ function PrimarySelect(props: PrimarySelectProps) {
     // </select>
 
     <select
-      className={"bg-accent-content select select-md select-bordered "}
+      className={"bg-secondary select select-md select-bordered prose"}
       multiple={props.multiple}
       onChange={props.onChange}
       defaultValue={props.value}
