@@ -1,42 +1,29 @@
 {
-  "name": "postman-clone",
+  "name": "buddy",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "postinstall": "npx prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@codemirror/basic-setup": "^0.20.0",
-    "@codemirror/commands": "^6.2.4",
-    "@codemirror/lang-json": "^6.0.1",
-    "@codemirror/view": "^6.11.0",
-    "@monaco-editor/react": "^4.5.1",
-    "@prisma/client": "^4.13.0",
     "@reduxjs/toolkit": "^1.9.5",
-    "@tailwindcss/typography": "^0.5.9",
-    "@types/node": "18.16.3",
-    "@types/react": "18.2.0",
-    "@types/react-dom": "18.2.1",
+    "@types/node": "20.2.4",
+    "@types/react": "18.2.7",
+    "@types/react-dom": "18.2.4",
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
     "daisyui": "^2.51.6",
-    "eslint": "8.39.0",
-    "eslint-config-next": "13.3.4",
-    "monaco-editor": "^0.38.0",
-    "next": "^13.4.0",
+    "eslint": "8.41.0",
+    "eslint-config-next": "13.4.4",
+    "next": "13.4.4",
     "postcss": "8.4.23",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-redux": "^8.0.5",
     "tailwindcss": "3.3.2",
-    "tw-elements": "^1.0.0-beta2",
     "typescript": "5.0.4"
-  },
-  "devDependencies": {
-    "prisma": "^4.13.0"
   }
 }
