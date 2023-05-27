@@ -1,7 +1,6 @@
+import Navbar from "@/components/Navbar";
 import "./globals.css";
 import { Poppins } from "next/font/google";
-
-import Navbar from "@/components/Navbar";
 
 const poppins = Poppins({ weight: ["500"], subsets: ["latin"] });
 
