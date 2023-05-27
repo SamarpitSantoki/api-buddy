@@ -1,38 +1,72 @@
-import { ReactNode } from "react";
-import Playground from "./Playground/Playground";
+"use client";
+
+import { useState } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Separator } from "./ui/separator";
 
 interface ITabsProps {
   tabs: {
-    name: string;
+    id: string;
+    title: string;
     component: JSX.Element;
   }[];
+  isCloseable?: boolean;
+  onClose?: (id: string) => void;
 }
 
-function HTabs({ tabs }: ITabsProps) {
+function HTabs({ tabs, isCloseable, onClose }: ITabsProps) {
+  const [activeTab, setActiveTab] = useState(tabs?.[0]?.id);
+
   return (
     <Tabs
-      defaultValue={tabs[0].name.toLowerCase()}
-      className="w-full min-h-full bg-accent-foreground"
+      defaultValue={tabs?.[0]?.id}
+      className="w-full mx-2"
+      onValueChange={(value) => setActiveTab(value)}
     >
-      <TabsList className="flex justify-start bg-accent-foreground ">
+      <TabsList className="flex justify-start px-8 ">
         {tabs.map((tab, index) => (
-          <TabsTrigger
-            className="w-32"
-            key={index}
-            value={tab.name.toLowerCase()}
-          >
-            {tab.name}
-          </TabsTrigger>
+          <>
+            <TabsTrigger
+              className="flex justify-between w-32 mx-2 group"
+              key={index}
+              value={tab.id}
+            >
+              {tab.title}
+
+              {isCloseable && (
+                <span
+                  className="group-hover:text-destructive"
+                  onClick={() => onClose!(tab.id)}
+                >
+                  x
+                </span>
+              )}
+
+              {/* {isCloseable && (
+              <Button
+                className="ml-2"
+                variant="secondary"
+                onClick={() => onClose!(tab.id)}
+              >
+                x
+              </Button>
+            )} */}
+            </TabsTrigger>
+            <Separator
+              orientation="vertical"
+              className="h-6 "
+              color="#544754"
+            />
+          </>
         ))}
       </TabsList>
       {tabs.map((tab, index) => (
         <TabsContent
-          className="w-full bg-accent-foreground"
+          className={`${activeTab === tab.id ? "block" : "hidden"} w-full `}
           key={index}
-          value={tab.name.toLowerCase()}
+          value={tab.id}
+          forceMount
         >
           {tab.component}
         </TabsContent>

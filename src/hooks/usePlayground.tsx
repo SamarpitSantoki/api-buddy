@@ -1,31 +1,28 @@
 "use client";
+import { useAppDispatch } from "@/redux/hooks";
+import { updatePlayground } from "@/redux/playgroundSlice";
+import { IPlayground } from "@/types/playgroundTypes";
+import {
+  IRequest,
+  TCreateRequestType,
+  TGetRequestResponse,
+} from "@/types/types";
 import axios from "axios";
-import { useState } from "react";
-
-interface IRequest {
-  id: string;
-  url: string;
-  method: string;
-  headers: {
-    key: string;
-    value: string;
-  }[];
-  params: {
-    key: string;
-    value: string;
-  }[];
-  body: string;
-}
+import { useEffect, useState } from "react";
 
 const usePlayground = () => {
+  const dispatch = useAppDispatch();
+
+  const [id, setId] = useState<number>(-1);
   const [title, setTitle] = useState("Request");
   const [playgroundState, setPlaygroundSate] = useState({
     isSaved: false,
     isEdited: false,
     isSaving: false,
+    isSending: false,
   });
   const [request, setRequest] = useState<IRequest>({
-    id: "",
+    id: -1,
     url: "",
     method: "",
     headers: [],
@@ -33,6 +30,10 @@ const usePlayground = () => {
     body: "",
   });
   const [response, setResponse] = useState<any>();
+
+  const updateTitle = (title: string) => {
+    setTitle(title);
+  };
 
   const updateUrl = (url: string) => {
     setRequest((prev) => ({ ...prev, url }));
@@ -45,7 +46,9 @@ const usePlayground = () => {
   const addHeader = () => {
     setRequest((prev) => ({
       ...prev,
-      headers: [...prev.headers, { key: "", value: "" }],
+      headers: prev.headers
+        ? [...prev.headers, { key: "", value: "" }]
+        : [{ key: "", value: "" }],
     }));
   };
 
@@ -68,7 +71,9 @@ const usePlayground = () => {
   const addParam = () => {
     setRequest((prev) => ({
       ...prev,
-      params: [...prev.params, { key: "", value: "" }],
+      params: prev.params
+        ? [...prev.params, { key: "", value: "" }]
+        : [{ key: "", value: "" }],
     }));
   };
 
@@ -93,6 +98,8 @@ const usePlayground = () => {
   };
 
   const makeRequest = async () => {
+    setPlaygroundSate((prev) => ({ ...prev, isSending: true }));
+
     //  validate url
     const url = formatUrl(request.url);
     setRequest((prev) => ({ ...prev, url }));
@@ -101,13 +108,13 @@ const usePlayground = () => {
       const response = await axios.request({
         url,
         method: request.method,
-        headers: request.headers.reduce((acc: any, curr) => {
+        headers: request?.headers?.reduce?.((acc: any, curr) => {
           if (curr.key) {
             acc[curr.key] = curr.value;
           }
           return acc;
         }, {}),
-        params: request.params.reduce((acc: any, curr) => {
+        params: request?.params?.reduce?.((acc: any, curr) => {
           if (curr.key) {
             acc[curr.key] = curr.value;
           }
@@ -117,15 +124,15 @@ const usePlayground = () => {
       });
       setResponse(response);
     } catch (error: any) {
-      console.log(error.request);
+      console.log(error);
 
-      if(error.request.status === 0){
-        setResponse({data: "Network Error"})
-      }else{
-        setResponse({data: error.request.statusText})
+      if (error.request.status === 0) {
+        setResponse({ data: "Network Error" });
+      } else {
+        setResponse({ data: error.request.statusText });
       }
-
     }
+    setPlaygroundSate((prev) => ({ ...prev, isSending: false }));
   };
 
   //  validate request to make sure it has http or https
@@ -136,11 +143,77 @@ const usePlayground = () => {
     return url;
   };
 
+  const setPlaygroundStateFromRemote = (data: IPlayground) => {
+    console.log(data);
+
+    setId(data.request.id);
+    setTitle(data.title);
+    setRequest(data.request);
+    setResponse(data.response);
+    setPlaygroundSate(data.playgroundState);
+  };
+
+  const saveRequest = async () => {
+    setPlaygroundSate((prev) => ({ ...prev, isSaving: true }));
+
+    const payload: TCreateRequestType = {
+      id: request.id,
+      title,
+      requestUrl: request.url,
+      requestMethod: request.method,
+      headerParams: JSON.stringify(request.headers),
+      queryParams: JSON.stringify(request.params),
+      jsonParams: request.body,
+      workspaceId: 1,
+    };
+
+    const { data } = await axios.post("/api/request", payload);
+
+    if (data.status) {
+      setPlaygroundSate((prev) => ({ ...prev, isSaved: true }));
+
+      const remoteData: TGetRequestResponse = data.data;
+
+      const formatedData: IPlayground = {
+        id: remoteData.id,
+        title: remoteData.title!,
+        request: {
+          id: remoteData.id,
+          url: remoteData.requestUrl!,
+          method: remoteData.requestMethod!,
+          headers: remoteData.headerParams
+            ? JSON.parse(remoteData.headerParams)
+            : [],
+          params: remoteData.queryParams
+            ? JSON.parse(remoteData.queryParams)
+            : [],
+          body: remoteData.jsonParams!,
+        },
+        response: null,
+        playgroundState: {
+          isSaved: true,
+          isEdited: false,
+          isSaving: false,
+          isSending: false,
+        },
+      };
+
+      setPlaygroundStateFromRemote(formatedData);
+
+      console.log(data);
+    }
+
+    setPlaygroundSate((prev) => ({ ...prev, isSaving: false }));
+  };
+
   return {
+    id,
     title,
     request,
     response,
     playgroundState,
+    updateTitle,
+    saveRequest,
     updateUrl,
     updateMethod,
     updateBody,
@@ -151,6 +224,7 @@ const usePlayground = () => {
     removeHeader,
     removeParam,
     makeRequest,
+    setPlaygroundStateFromRemote,
   };
 };
 

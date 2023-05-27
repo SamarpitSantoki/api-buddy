@@ -1,0 +1,13 @@
+import { IRequest } from "./types";
+export interface IPlayground {
+  id: number;
+  title: string;
+  playgroundState: {
+    isSaved: boolean;
+    isEdited: boolean;
+    isSaving: boolean;
+    isSending: boolean;
+  };
+  request: IRequest;
+  response: Response | null;
+}

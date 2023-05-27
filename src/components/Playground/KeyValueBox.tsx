@@ -12,24 +12,28 @@ interface IkpProps {
   updateField: (index: number, key: string, value: string) => void;
 }
 
-function HeaderTab({ fields, addField, removeField, updateField }: IkpProps) {
+function KeyValuBox({ fields, addField, removeField, updateField }: IkpProps) {
   useEffect(() => {
     // check if the last field is empty
-    const lastField = fields[fields.length - 1];
+    if (!!fields) {
+      const lastField = fields[fields.length - 1];
 
-    if (fields.length === 0) {
-      addField();
-    } else if (lastField.key !== "" || lastField.value !== "") {
+      if (fields.length === 0) {
+        addField();
+      } else if (lastField.key !== "" || lastField.value !== "") {
+        addField();
+      }
+    } else {
       addField();
     }
-  }, [fields, addField]);
+  }, [fields]);
 
   return (
     <div className="relative border rounded-md border-accent min-h-[120px]">
-      {fields.map((field, index) => (
+      {fields?.map((field, index) => (
         <div key={index} className="flex p-2 ">
           <Input
-            className="w-full rounded-none"
+            className="w-full rounded-none focus-visible:ring-offset-0"
             placeholder="Key"
             value={field.key}
             onChange={(e) => {
@@ -37,7 +41,7 @@ function HeaderTab({ fields, addField, removeField, updateField }: IkpProps) {
             }}
           />
           <Input
-            className="w-full border-l-0 rounded-none"
+            className="w-full border-l-0 rounded-none focus-visible:ring-offset-0"
             placeholder="Value"
             value={field.value}
             onChange={(e) => {
@@ -58,4 +62,4 @@ function HeaderTab({ fields, addField, removeField, updateField }: IkpProps) {
     </div>
   );
 }
-export default HeaderTab;
+export default KeyValuBox;

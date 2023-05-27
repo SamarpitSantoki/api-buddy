@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import { Poppins } from "next/font/google";
+import { Providers } from "@/redux/providers";
 
 const poppins = Poppins({ weight: ["500"], subsets: ["latin"] });
 
@@ -16,10 +17,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={poppins.className + " min-h-screen flex flex-col"}>
-        <Navbar />
-        <div className="flex bg-red-400 h-max grow">{children}</div>
-      </body>
+      <Providers>
+        <body className={poppins.className + " min-h-screen flex flex-col"}>
+          <Navbar />
+          <div className="flex grow">{children}</div>
+        </body>
+      </Providers>
     </html>
   );
 }

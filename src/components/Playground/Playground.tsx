@@ -14,12 +14,18 @@ import {
   SelectValue,
 } from "../ui/select";
 import KeyValueBox from "./KeyValueBox";
+import { IPlayground } from "@/types/playgroundTypes";
+import { useEffect } from "react";
+import { TypographyH4 } from "../ui/typography";
+import { Loader, Loader2 } from "lucide-react";
 
-function Playground() {
+function Playground({ data }: { data: IPlayground }) {
   const {
     request,
     response,
     title,
+    playgroundState,
+    saveRequest,
     updateUrl,
     updateMethod,
     makeRequest,
@@ -30,16 +36,42 @@ function Playground() {
     updateBody,
     removeHeader,
     removeParam,
+    setPlaygroundStateFromRemote,
+    updateTitle,
   } = usePlayground();
 
+  useEffect(() => {
+    if (data) {
+      setPlaygroundStateFromRemote(data);
+    }
+  }, [data]);
+
   return (
-    <div className="flex flex-col items-center justify-start w-full h-full gap-4 p-8 border text-accent bg-accent-foreground border-border">
+    <div className="flex flex-col items-center justify-start w-full h-full gap-4 p-8 ">
+      <div className="flex justify-between w-3/4">
+        <Input
+          type="text"
+          value={title}
+          onChange={(e) => updateTitle(e.target.value)}
+          className="border-0 shadow-none ring-0 focus-visible:border focus-visible:ring-offset-0 focus-visible:ring-0 w-min"
+        />
+
+        <Button variant="secondary" onClick={saveRequest}>
+          Update
+          {playgroundState.isSaving ? (
+            <span className="animate-spin">
+              <Loader2 size={16} />
+            </span>
+          ) : null}
+        </Button>
+      </div>
+
       <div className="flex w-3/4">
         <Select
           onValueChange={(value) => {
             updateMethod(value);
           }}
-          defaultValue={request.method}
+          value={request.method}
         >
           <SelectTrigger className="rounded-r-none w-36">
             <SelectValue placeholder="Method" />
@@ -48,11 +80,11 @@ function Playground() {
             <SelectGroup>
               <SelectLabel>Method</SelectLabel>
 
-              <SelectItem value="get">GET</SelectItem>
-              <SelectItem value="post">POST</SelectItem>
-              <SelectItem value="put">PUT</SelectItem>
-              <SelectItem value="patch">PATCH</SelectItem>
-              <SelectItem value="delete">DELETE</SelectItem>
+              <SelectItem value="GET">GET</SelectItem>
+              <SelectItem value="POST">POST</SelectItem>
+              <SelectItem value="PUT">PUT</SelectItem>
+              <SelectItem value="PATCH">PATCH</SelectItem>
+              <SelectItem value="DELETE">DELETE</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -70,13 +102,19 @@ function Playground() {
           onClick={makeRequest}
         >
           Send
+          {playgroundState.isSending ? (
+            <span className="animate-spin">
+              <Loader2 size={16} />
+            </span>
+          ) : null}
         </Button>
       </div>
       <div className="flex w-3/4">
         <HTabs
           tabs={[
             {
-              name: "Headers",
+              id: "headers",
+              title: "Headers",
               component: (
                 <KeyValueBox
                   fields={request.headers}
@@ -87,7 +125,8 @@ function Playground() {
               ),
             },
             {
-              name: "Params",
+              id: "params",
+              title: "Params",
               component: (
                 <KeyValueBox
                   fields={request.params}
