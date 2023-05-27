@@ -116,8 +116,15 @@ const usePlayground = () => {
         data: request.body,
       });
       setResponse(response);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log(error.request);
+
+      if(error.request.status === 0){
+        setResponse({data: "Network Error"})
+      }else{
+        setResponse({data: error.request.statusText})
+      }
+
     }
   };
 

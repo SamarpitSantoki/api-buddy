@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -12,8 +13,19 @@ interface IkpProps {
 }
 
 function HeaderTab({ fields, addField, removeField, updateField }: IkpProps) {
+  useEffect(() => {
+    // check if the last field is empty
+    const lastField = fields[fields.length - 1];
+
+    if (fields.length === 0) {
+      addField();
+    } else if (lastField.key !== "" || lastField.value !== "") {
+      addField();
+    }
+  }, [fields, addField]);
+
   return (
-    <div className="border rounded-md border-accent h-80">
+    <div className="relative border rounded-md border-accent min-h-[120px]">
       {fields.map((field, index) => (
         <div key={index} className="flex p-2 ">
           <Input
@@ -32,15 +44,17 @@ function HeaderTab({ fields, addField, removeField, updateField }: IkpProps) {
               updateField(index, field.key, e.target.value);
             }}
           />
-          <Button className="w-20 ml-1 " variant="destructive">
+          <Button
+            className="w-20 ml-1 "
+            variant="destructive"
+            onClick={() => {
+              removeField(index);
+            }}
+          >
             Remove
           </Button>
         </div>
       ))}
-
-      <Button className="w-full" variant="secondary" onClick={addField}>
-        Add Field
-      </Button>
     </div>
   );
 }

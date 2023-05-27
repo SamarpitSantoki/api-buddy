@@ -1,29 +1,39 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
-  provider = "mysql"
-  url = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
 model Request {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title String?
-  label String?
-  requestUrl String
-  requestMethod String @default("GET")
-  queryParams String?
-  headerParams String?
-  jsonParams String?
-  responseStatus String?
-  responseTime Int?
-  responseSize Float?
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  title           String?
+  label           String?
+  requestUrl      String
+  requestMethod   String   @default("GET")
+  queryParams     String?
+  headerParams    String?
+  jsonParams      String?
+  responseStatus  String?
+  responseTime    Int?
+  responseSize    Float?
   responseHeaders String?
-  responseBody String?
+  responseBody    String?
+  workspaceId     Int
+
+  @@index([workspaceId], map: "workspaceId")
+}
+
+model Workspace {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  name        String
+  description String?
+  type        String   @default("PERSONAL")
 }

@@ -16,9 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={poppins.className + " min-h-screen"}>
+      <body className={poppins.className + " min-h-screen flex flex-col"}>
         <Navbar />
-        <div className="flex h-full">{children}</div>
+        <div className="flex bg-red-400 h-max grow">{children}</div>
       </body>
     </html>
   );

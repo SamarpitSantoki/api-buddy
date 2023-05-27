@@ -13,7 +13,10 @@ interface ITabsProps {
 
 function HTabs({ tabs }: ITabsProps) {
   return (
-    <Tabs defaultValue={tabs[0].name} className="w-full bg-accent-foreground">
+    <Tabs
+      defaultValue={tabs[0].name.toLowerCase()}
+      className="w-full min-h-full bg-accent-foreground"
+    >
       <TabsList className="flex justify-start bg-accent-foreground ">
         {tabs.map((tab, index) => (
           <TabsTrigger

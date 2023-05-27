@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import HeaderTab from "./HeaderTab";
+import KeyValueBox from "./KeyValueBox";
 
 function Playground() {
   const {
@@ -78,7 +78,7 @@ function Playground() {
             {
               name: "Headers",
               component: (
-                <HeaderTab
+                <KeyValueBox
                   fields={request.headers}
                   addField={addHeader}
                   removeField={removeHeader}
@@ -89,7 +89,7 @@ function Playground() {
             {
               name: "Params",
               component: (
-                <HeaderTab
+                <KeyValueBox
                   fields={request.params}
                   addField={addParam}
                   updateField={updateParam}
@@ -110,12 +110,13 @@ function Playground() {
             <div className="flex flex-col gap-2">
               <div className="text-lg font-bold">Headers</div>
               <div className="flex flex-col gap-2">
-                {Object.keys(response.headers).map((key) => (
-                  <div key={key} className="flex gap-2">
-                    <div className="font-bold">{key}</div>
-                    <div>{response.headers[key]}</div>
-                  </div>
-                ))}
+                {response.header &&
+                  Object.keys(response.headers).map((key) => (
+                    <div key={key} className="flex gap-2">
+                      <div className="font-bold">{key}</div>
+                      <div>{response.headers[key]}</div>
+                    </div>
+                  ))}
               </div>
             </div>
             <div className="flex flex-col gap-2">
