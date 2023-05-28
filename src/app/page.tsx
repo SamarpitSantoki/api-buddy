@@ -7,13 +7,13 @@ import {
   addActivePlayground,
   addActivePlaygrounds,
   addPlaygrounds,
+  createPlayground,
   getPlaygrounds,
   playgroundSliceState,
   removeActivePlayground,
 } from "@/redux/playgroundSlice";
 import { IPlayground } from "@/types/playgroundTypes";
-import { useEffect } from "react";
-import axios from "axios";
+import { Dispatch, SetStateAction, useEffect } from "react";
 
 export default function Home() {
   const { activePlaygrounds, currentPlayground, playgrounds } =
@@ -54,26 +54,50 @@ export default function Home() {
     );
   };
 
-  const closePlayground = async (id: string) => {
-    // setActivePlayground(activePlayground.filter((_, i) => i !== index));
-
-    // // click on the
-    // getRequests().then((data) => {
-    //   setAvailablePlaygrounds(data);
-    // });
-
+  const closePlayground = async (
+    id: string,
+    index: number,
+    activeTab: string,
+    setActiveTab: Dispatch<SetStateAction<string>>
+  ) => {
     dispatch(removeActivePlayground(id));
 
     dispatch(getPlaygrounds());
 
+    if (activePlaygrounds.length - 1 === 0) return;
+
+    if (activeTab === id) {
+      if (index === 0) {
+        setActiveTab(activePlaygrounds[1].id?.toString() || "-1");
+      } else {
+        setActiveTab(activePlaygrounds[index - 1].id?.toString() || "-1");
+      }
+    }
+
     // dispatch(addActivePlayground(data));
   };
 
-  async function getRequests() {
-    const res = await axios.get("/api/request");
+  const createNewPlayground = () => {
+    const payload = {
+      title: "New Request",
+      request: {
+        url: "",
+        method: "GET",
+        headers: [],
+        body: "",
+        params: [],
+      },
+      response: null,
+      playgroundState: {
+        isEdited: true,
+        isSaved: false,
+        isSaving: false,
+        isSending: false,
+      },
+    };
 
-    return res.data.data;
-  }
+    dispatch(createPlayground(payload));
+  };
 
   return (
     <div className="flex w-full min-h-full">
@@ -81,10 +105,11 @@ export default function Home() {
         playgrounds={playgrounds}
         activePlaygrounds={activePlaygrounds}
         openPlayground={openPlayground}
+        createNewPlayground={createNewPlayground}
       />
       <HTabs
         tabs={activePlaygrounds.map((playground) => ({
-          id: playground.id.toString(),
+          id: playground.id?.toString() || "-1",
           title: playground.title,
           component: <Playground data={playground} />,
         }))}

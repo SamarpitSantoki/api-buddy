@@ -16,8 +16,10 @@ import {
 import KeyValueBox from "./KeyValueBox";
 import { IPlayground } from "@/types/playgroundTypes";
 import { useEffect } from "react";
-import { TypographyH4 } from "../ui/typography";
-import { Loader, Loader2 } from "lucide-react";
+import { TypographyP } from "../ui/typography";
+import { Loader2 } from "lucide-react";
+import { Editor } from "@monaco-editor/react";
+import prettyBytes from "@/lib/prettyBytes";
 
 function Playground({ data }: { data: IPlayground }) {
   const {
@@ -41,7 +43,7 @@ function Playground({ data }: { data: IPlayground }) {
   } = usePlayground();
 
   useEffect(() => {
-    if (data) {
+    if (data && !playgroundState.isEdited) {
       setPlaygroundStateFromRemote(data);
     }
   }, [data]);
@@ -53,7 +55,7 @@ function Playground({ data }: { data: IPlayground }) {
           type="text"
           value={title}
           onChange={(e) => updateTitle(e.target.value)}
-          className="border-0 shadow-none ring-0 focus-visible:border focus-visible:ring-offset-0 focus-visible:ring-0 w-min"
+          className="text-lg border-0 shadow-none ring-0 focus-visible:border focus-visible:ring-offset-0 focus-visible:ring-0 w-min"
         />
 
         <Button variant="secondary" onClick={saveRequest}>
@@ -136,34 +138,147 @@ function Playground({ data }: { data: IPlayground }) {
                 />
               ),
             },
+            {
+              id: "body",
+              title: "Body",
+              component: (
+                <Editor
+                  height="25vh"
+                  theme="vs-dark"
+                  defaultValue={request.body}
+                  defaultLanguage={"json"}
+                  options={{
+                    minimap: {
+                      enabled: false,
+                    },
+                    matchBrackets: "always",
+                    bracketPairColorization: {
+                      enabled: true,
+                      independentColorPoolPerBracketType: true,
+                    },
+                    colorDecorators: true,
+                    defaultColorDecorators: true,
+                  }}
+                  onChange={(value) => {
+                    updateBody(value!);
+                  }}
+                />
+              ),
+            },
           ]}
         />
       </div>
       <div className="flex w-3/4">
-        {response && (
-          <div className="flex flex-col w-full h-full p-2 overflow-auto border border-border">
-            <div className="flex justify-between">
-              <div className="text-xl font-bold">Response</div>
-              <div className="text-xl font-bold">{response.status}</div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="text-lg font-bold">Headers</div>
-              <div className="flex flex-col gap-2">
-                {response.header &&
-                  Object.keys(response.headers).map((key) => (
-                    <div key={key} className="flex gap-2">
-                      <div className="font-bold">{key}</div>
-                      <div>{response.headers[key]}</div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="text-lg font-bold">Body</div>
-              <pre>{JSON.stringify(response.data, null, 2)}</pre>
-            </div>
+        <div className="flex flex-col mt-8 gap-y-4">
+          <div className="text-lg text-gray-500">Response</div>
+          <div className="flex">
+            <span>
+              <TypographyP>
+                Status:
+                <span
+                  className={
+                    response?.status >= 200 && response?.status < 300
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }
+                >
+                  {" "}
+                  {response?.status}
+                </span>
+              </TypographyP>
+            </span>
+
+            <span className="ml-4 prose">
+              <TypographyP>
+                Time: <span className="">{response?.headers?.time} ms</span>
+              </TypographyP>
+            </span>
+
+            <span className="ml-4 prose">
+              <TypographyP>
+                Size:{" "}
+                <span className="prose">
+                  {prettyBytes(
+                    new TextEncoder().encode(JSON.stringify(response?.data))
+                      .length
+                  )}
+                </span>
+              </TypographyP>
+            </span>
           </div>
-        )}
+        </div>
+      </div>
+      <div className="flex w-3/4">
+        <HTabs
+          tabs={[
+            {
+              id: "json",
+              title: "JSON",
+              component: (
+                <div className="w-full h-full p-4 rounded bg-neutral-100">
+                  <pre className="overflow-x-scroll leading-7 text-white">
+                    <Editor
+                      height="25vh"
+                      theme="vs-dark"
+                      defaultLanguage={"json"}
+                      value={JSON.stringify(response?.data, null, 2)}
+                      options={{
+                        readOnly: true,
+                        minimap: {
+                          enabled: false,
+                        },
+                      }}
+                    />
+                  </pre>
+                </div>
+              ),
+            },
+            {
+              id: "headers",
+              title: "Headers",
+              component: (
+                <KeyValueBox
+                  fields={
+                    response?.headers
+                      ? Object.keys(response?.headers)?.map((header: any) => {
+                          return {
+                            key: header,
+                            value: response?.headers[header],
+                          };
+                        })
+                      : []
+                  }
+                  disabled
+                  addField={() => {}}
+                  removeField={() => {}}
+                  updateField={() => {}}
+                />
+              ),
+            },
+            {
+              id: "raw",
+              title: "Raw",
+              component: (
+                <div className="w-full h-full p-4 rounded ">
+                  <p className="prose">
+                    {JSON.stringify({
+                      ...response?.data,
+                    })}
+                  </p>
+                </div>
+              ),
+            },
+            {
+              id: "preview",
+              title: "Preview",
+              component: (
+                <div className="w-full h-full p-4 rounded ">
+                  <iframe srcDoc={response?.data} className="w-full h-full" />
+                </div>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );

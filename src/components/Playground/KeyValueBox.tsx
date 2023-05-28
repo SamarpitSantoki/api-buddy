@@ -10,9 +10,16 @@ interface IkpProps {
   addField: () => void;
   removeField: (index: number) => void;
   updateField: (index: number, key: string, value: string) => void;
+  disabled?: boolean;
 }
 
-function KeyValuBox({ fields, addField, removeField, updateField }: IkpProps) {
+function KeyValuBox({
+  fields,
+  addField,
+  removeField,
+  updateField,
+  disabled,
+}: IkpProps) {
   useEffect(() => {
     // check if the last field is empty
     if (!!fields) {
@@ -33,6 +40,7 @@ function KeyValuBox({ fields, addField, removeField, updateField }: IkpProps) {
       {fields?.map((field, index) => (
         <div key={index} className="flex p-2 ">
           <Input
+            disabled={disabled}
             className="w-full rounded-none focus-visible:ring-offset-0"
             placeholder="Key"
             value={field.key}
@@ -41,6 +49,7 @@ function KeyValuBox({ fields, addField, removeField, updateField }: IkpProps) {
             }}
           />
           <Input
+            disabled={disabled}
             className="w-full border-l-0 rounded-none focus-visible:ring-offset-0"
             placeholder="Value"
             value={field.value}
@@ -48,15 +57,17 @@ function KeyValuBox({ fields, addField, removeField, updateField }: IkpProps) {
               updateField(index, field.key, e.target.value);
             }}
           />
-          <Button
-            className="w-20 ml-1 "
-            variant="destructive"
-            onClick={() => {
-              removeField(index);
-            }}
-          >
-            Remove
-          </Button>
+          {!disabled && (
+            <Button
+              className="w-20 ml-1 hover:bg-red-500 hover:text-white "
+              variant="destructive"
+              onClick={() => {
+                removeField(index);
+              }}
+            >
+              Remove
+            </Button>
+          )}
         </div>
       ))}
     </div>

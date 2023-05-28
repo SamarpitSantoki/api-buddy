@@ -1,13 +1,13 @@
 "use client";
 import { useAppDispatch } from "@/redux/hooks";
-import { updatePlayground } from "@/redux/playgroundSlice";
+import { getPlaygrounds, updatePlayground } from "@/redux/playgroundSlice";
 import { IPlayground } from "@/types/playgroundTypes";
 import {
   IRequest,
   TCreateRequestType,
   TGetRequestResponse,
 } from "@/types/types";
-import axios from "axios";
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
 
 const usePlayground = () => {
@@ -100,6 +100,18 @@ const usePlayground = () => {
   const makeRequest = async () => {
     setPlaygroundSate((prev) => ({ ...prev, isSending: true }));
 
+    axios.interceptors.request.use(
+      (request: InternalAxiosRequestConfig<any>) => {
+        request.headers.startTime = new Date().getTime();
+        return request;
+      }
+    );
+    axios.interceptors.response.use(updateEndTime, (error: any) => {
+      if (error.response) return Promise.reject(updateEndTime(error.response));
+
+      return Promise.reject(error);
+    });
+
     //  validate url
     const url = formatUrl(request.url);
     setRequest((prev) => ({ ...prev, url }));
@@ -126,11 +138,14 @@ const usePlayground = () => {
     } catch (error: any) {
       console.log(error);
 
-      if (error.request.status === 0) {
-        setResponse({ data: "Network Error" });
-      } else {
-        setResponse({ data: error.request.statusText });
-      }
+      if (error.response) setResponse(error.response);
+      else if (error.request)
+        if (error.request.status === 0) {
+          setResponse({ data: "Network Error" });
+        } else {
+          setResponse({ data: error.request.response });
+        }
+      else setResponse({ data: `Request Field ${error.message}` });
     }
     setPlaygroundSate((prev) => ({ ...prev, isSending: false }));
   };
@@ -149,7 +164,7 @@ const usePlayground = () => {
     setId(data.request.id);
     setTitle(data.title);
     setRequest(data.request);
-    setResponse(data.response);
+    if (data.response) setResponse(data.response);
     setPlaygroundSate(data.playgroundState);
   };
 
@@ -174,7 +189,7 @@ const usePlayground = () => {
 
       const remoteData: TGetRequestResponse = data.data;
 
-      const formatedData: IPlayground = {
+      const formatedData = {
         id: remoteData.id,
         title: remoteData.title!,
         request: {
@@ -189,7 +204,6 @@ const usePlayground = () => {
             : [],
           body: remoteData.jsonParams!,
         },
-        response: null,
         playgroundState: {
           isSaved: true,
           isEdited: false,
@@ -198,13 +212,17 @@ const usePlayground = () => {
         },
       };
 
-      setPlaygroundStateFromRemote(formatedData);
+      setPlaygroundStateFromRemote(formatedData as any);
 
       console.log(data);
     }
 
     setPlaygroundSate((prev) => ({ ...prev, isSaving: false }));
+
+    dispatch(getPlaygrounds());
   };
+
+  // TODO: sync the activePlayground with the current update
 
   return {
     id,
@@ -229,3 +247,10 @@ const usePlayground = () => {
 };
 
 export default usePlayground;
+
+function updateEndTime(response: AxiosResponse) {
+  if (response) response.headers.startTime = response?.headers?.startTime || {};
+  response.headers.time =
+    new Date().getTime() - response?.config?.headers?.startTime;
+  return response;
+}

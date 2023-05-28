@@ -36,6 +36,10 @@ export const playgroundSlice = createSlice({
     addPlaygrounds: (state, action: PayloadAction<IPlayground[]>) => {
       state.playgrounds = action.payload;
     },
+    createPlayground: (state, action: PayloadAction<any>) => {
+      state.playgrounds.push(action.payload);
+      state.activePlaygrounds.push(action.payload);
+    },
     addActivePlaygrounds: (state, action: PayloadAction<IPlayground[]>) => {
       state.activePlaygrounds = action.payload;
     },
@@ -97,6 +101,7 @@ export const {
   addCurrentPlayground,
   removeActivePlayground,
   updatePlayground,
+  createPlayground,
 } = playgroundSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
