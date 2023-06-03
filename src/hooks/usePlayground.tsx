@@ -10,7 +10,7 @@ import {
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
 
-const usePlayground = () => {
+const usePlayground = (workspaceId: number) => {
   const dispatch = useAppDispatch();
 
   const [id, setId] = useState<number>(-1);
@@ -28,6 +28,7 @@ const usePlayground = () => {
     headers: [],
     params: [],
     body: "",
+    workspaceId: workspaceId,
   });
   const [response, setResponse] = useState<any>();
 
@@ -219,7 +220,7 @@ const usePlayground = () => {
 
     setPlaygroundSate((prev) => ({ ...prev, isSaving: false }));
 
-    dispatch(getPlaygrounds());
+    dispatch(getPlaygrounds(workspaceId));
   };
 
   // TODO: sync the activePlayground with the current update

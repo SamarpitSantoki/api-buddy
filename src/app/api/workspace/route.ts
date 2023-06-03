@@ -1,5 +1,4 @@
 import prisma from "@/db/prisma";
-import { NextRequest } from "next/server";
 
 export async function POST(request: Request) {
   const req = await request.json();
@@ -7,12 +6,17 @@ export async function POST(request: Request) {
 
   console.log(req);
 
-  if (!req.label) {
-    req.label = req.title.toLowerCase().split(" ").join("-");
+  if (!req.name) {
+    return new Response(
+      JSON.stringify({
+        data: [],
+        status: false,
+      })
+    );
   }
 
   try {
-    const entry = await prisma.request.upsert({
+    const entry = await prisma.workspace.upsert({
       where: {
         id: req?.id || 0,
       },
@@ -35,18 +39,28 @@ export async function POST(request: Request) {
   return new Response(JSON.stringify(response));
 }
 
-export async function GET(request: NextRequest) {
-  let workspaceId = request.nextUrl.searchParams.get("workspaceId");
+export async function GET(request: Request) {
   let response = {};
-  
+
   try {
-    const entry = await prisma.request.findMany(
+    const entry = await prisma.workspace.findMany(
       {
-        where: {
-          workspaceId: Number(workspaceId)
+        select:{
+          id: true,
+          name: true,
+          type: true,
+          description: true,
+          createdAt: true,
+          updatedAt: true,
+          requests: {
+            select: {
+              id: true,
+            }
+          }
         }
       }
     );
+
 
     response = {
       data: entry,
@@ -66,14 +80,12 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: Request) {
   let response = {};
 
-  const id = request.url.split("?")[1].split("=")[1];
-
-  console.log("context", id);
-
   try {
-    const entry = await prisma.request.delete({
+    const req = await request.json();
+
+    const entry = await prisma.workspace.delete({
       where: {
-        id: Number(id) || -1,
+        id: req?.id || 0,
       },
     });
 
@@ -82,12 +94,12 @@ export async function DELETE(request: Request) {
       status: true,
     };
   } catch (e) {
+    console.log(e);
     response = {
       data: [],
       status: false,
     };
-
-    console.log(e);
   }
+
   return new Response(JSON.stringify(response));
 }

@@ -21,7 +21,13 @@ import { Loader2 } from "lucide-react";
 import { Editor } from "@monaco-editor/react";
 import prettyBytes from "@/lib/prettyBytes";
 
-function Playground({ data }: { data: IPlayground }) {
+function Playground({
+  data,
+  workspaceId,
+}: {
+  data: IPlayground;
+  workspaceId: number;
+}) {
   const {
     request,
     response,
@@ -40,7 +46,7 @@ function Playground({ data }: { data: IPlayground }) {
     removeParam,
     setPlaygroundStateFromRemote,
     updateTitle,
-  } = usePlayground();
+  } = usePlayground(workspaceId);
 
   useEffect(() => {
     if (data && !playgroundState.isEdited) {

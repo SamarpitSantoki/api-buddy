@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 export interface IRequest {
+  workspaceId: number;
   id: number;
   url: string;
   method: string;
@@ -13,6 +14,7 @@ export interface IRequest {
     value: string;
   }[];
   body: string;
+
 }
 
 export type TGetRequestResponse = Prisma.RequestGetPayload<{

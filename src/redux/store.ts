@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import playgroundSlice from "./playgroundSlice";
+import workspaceSlice from './workspaceSlice';
 // ...
 
 export const store = configureStore({
   reducer: {
     playground: playgroundSlice,
+    workspace: workspaceSlice
   },
   devTools: true,
 });

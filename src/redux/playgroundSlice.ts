@@ -21,8 +21,8 @@ const initialState: PlaygroundSlice = {
 
 export const getPlaygrounds = createAsyncThunk(
   "playground/getPlaygrounds",
-  async () => {
-    const res = await axios.get("/api/request");
+  async (workspaceId: number) => {
+    const res = await axios.get("/api/request?workspaceId=" + workspaceId);
 
     return res.data.data;
   }

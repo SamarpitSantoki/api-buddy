@@ -15,26 +15,26 @@ import {
 import { IPlayground } from "@/types/playgroundTypes";
 import { Dispatch, SetStateAction, useEffect } from "react";
 
-export default function Home() {
+export default function Page({
+  params,
+}: {
+  params: {
+    id: string;
+  };
+}) {
+
+  const workspaceId = params.id;
+
   const { activePlaygrounds, currentPlayground, playgrounds } =
     useAppSelector(playgroundSliceState);
 
   const dispatch = useAppDispatch();
 
-  // const [availablePlaygrounds, setAvailablePlaygrounds] = useState<
-  //   Array<TGetRequestResponse>
-  // >([]);
-  // const [activePlayground, setActivePlayground] = useState<
-  //   Array<TGetRequestResponse>
-  // >([]);
-
   useEffect(() => {
-    dispatch(getPlaygrounds());
+    dispatch(getPlaygrounds(parseInt(workspaceId)));
   }, []);
 
   const openPlayground = (data: string) => {
-    // if (activePlayground.find((tab) => tab.id === data.id)) return;
-
     if (activePlaygrounds.find((tab: IPlayground) => tab.id === parseInt(data)))
       return;
 
@@ -62,7 +62,7 @@ export default function Home() {
   ) => {
     dispatch(removeActivePlayground(id));
 
-    dispatch(getPlaygrounds());
+    dispatch(getPlaygrounds(parseInt(workspaceId)));
 
     if (activePlaygrounds.length - 1 === 0) return;
 
@@ -79,6 +79,7 @@ export default function Home() {
 
   const createNewPlayground = () => {
     const payload = {
+      workspaceId: workspaceId,
       title: "New Request",
       request: {
         url: "",
@@ -111,7 +112,7 @@ export default function Home() {
         tabs={activePlaygrounds.map((playground) => ({
           id: playground.id?.toString() || "-1",
           title: playground.title,
-          component: <Playground data={playground} />,
+          component: <Playground data={playground} workspaceId={parseInt(workspaceId)} />,
         }))}
         isCloseable
         onClose={closePlayground}

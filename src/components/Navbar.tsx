@@ -12,10 +12,10 @@ export default function Navbar() {
       </div>
 
       <Link
-        href="/projects"
+        href="/workspaces"
         className="text-sm font-medium transition-colors hover:text-primary"
       >
-        Projects
+        Workspaces
       </Link>
     </nav>
   );

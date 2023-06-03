@@ -9,13 +9,13 @@ datasource db {
 }
 
 model Request {
-  id              Int      @id @default(autoincrement())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id              Int       @id @default(autoincrement())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   title           String?
   label           String?
   requestUrl      String
-  requestMethod   String   @default("GET")
+  requestMethod   String    @default("GET")
   queryParams     String?
   headerParams    String?
   jsonParams      String?
@@ -25,15 +25,19 @@ model Request {
   responseHeaders String?
   responseBody    String?
   workspaceId     Int
+  workspace       Workspace @relation(fields: [workspaceId], references: [id])
 
   @@index([workspaceId], map: "workspaceId")
 }
 
 model Workspace {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
+  id          Int       @id @default(autoincrement())
   name        String
   description String?
-  type        String   @default("PERSONAL")
+  type        String    @default("PERSONAL")
+  requests    Request[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("workspaces")
 }
