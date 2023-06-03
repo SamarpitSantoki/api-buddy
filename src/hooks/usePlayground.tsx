@@ -8,10 +8,13 @@ import {
   TGetRequestResponse,
 } from "@/types/types";
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const usePlayground = (workspaceId: number) => {
   const dispatch = useAppDispatch();
+
+  const router = useRouter();
 
   const [id, setId] = useState<number>(-1);
   const [title, setTitle] = useState("Request");
@@ -140,13 +143,13 @@ const usePlayground = (workspaceId: number) => {
       console.log(error);
 
       if (error.response) setResponse(error.response);
-      else if (error.request)
+      else if (error.request) {
         if (error.request.status === 0) {
           setResponse({ data: "Network Error" });
         } else {
           setResponse({ data: error.request.response });
         }
-      else setResponse({ data: `Request Field ${error.message}` });
+      } else setResponse({ data: `Request Field ${error.message}` });
     }
     setPlaygroundSate((prev) => ({ ...prev, isSending: false }));
   };
@@ -183,44 +186,52 @@ const usePlayground = (workspaceId: number) => {
       workspaceId: 1,
     };
 
-    const { data } = await axios.post("/api/request", payload);
+    try {
+      const { data } = await axios.post("/api/request", payload);
 
-    if (data.status) {
-      setPlaygroundSate((prev) => ({ ...prev, isSaved: true }));
+      if (data.status) {
+        setPlaygroundSate((prev) => ({ ...prev, isSaved: true }));
 
-      const remoteData: TGetRequestResponse = data.data;
+        const remoteData: TGetRequestResponse = data.data;
 
-      const formatedData = {
-        id: remoteData.id,
-        title: remoteData.title!,
-        request: {
+        const formatedData = {
           id: remoteData.id,
-          url: remoteData.requestUrl!,
-          method: remoteData.requestMethod!,
-          headers: remoteData.headerParams
-            ? JSON.parse(remoteData.headerParams)
-            : [],
-          params: remoteData.queryParams
-            ? JSON.parse(remoteData.queryParams)
-            : [],
-          body: remoteData.jsonParams!,
-        },
-        playgroundState: {
-          isSaved: true,
-          isEdited: false,
-          isSaving: false,
-          isSending: false,
-        },
-      };
+          title: remoteData.title!,
+          request: {
+            id: remoteData.id,
+            url: remoteData.requestUrl!,
+            method: remoteData.requestMethod!,
+            headers: remoteData.headerParams
+              ? JSON.parse(remoteData.headerParams)
+              : [],
+            params: remoteData.queryParams
+              ? JSON.parse(remoteData.queryParams)
+              : [],
+            body: remoteData.jsonParams!,
+          },
+          playgroundState: {
+            isSaved: true,
+            isEdited: false,
+            isSaving: false,
+            isSending: false,
+          },
+        };
 
-      setPlaygroundStateFromRemote(formatedData as any);
+        setPlaygroundStateFromRemote(formatedData as any);
 
-      console.log(data);
+        console.log(data);
+      }
+
+      setPlaygroundSate((prev) => ({ ...prev, isSaving: false }));
+
+      dispatch(getPlaygrounds(workspaceId));
+    } catch (error: any) {
+      console.log(error);
+      
+      if (error.response.status === 401) {
+          router.push("/sign-in?redirectUrl="+ window.location.pathname);
+      }
     }
-
-    setPlaygroundSate((prev) => ({ ...prev, isSaving: false }));
-
-    dispatch(getPlaygrounds(workspaceId));
   };
 
   // TODO: sync the activePlayground with the current update

@@ -1,6 +1,14 @@
 import prisma from "@/db/prisma";
+import { auth } from "@clerk/nextjs";
 
 export async function POST(request: Request) {
+
+  const {userId} = auth();
+  
+  if(!userId){
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   const req = await request.json();
   let response = {};
 
@@ -78,6 +86,12 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const {userId} = auth();
+  
+  if(!userId){
+    return new Response("Unauthorized", { status: 401 });
+  }
+  
   let response = {};
 
   try {

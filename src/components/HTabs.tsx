@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Separator } from "./ui/separator";
@@ -22,6 +22,11 @@ interface ITabsProps {
 
 function HTabs({ tabs, isCloseable, onClose }: ITabsProps) {
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.id);
+
+  useEffect(()=>{
+    if(activeTab) return;
+    setActiveTab(tabs?.[0]?.id)
+  },[tabs])
 
   return (
     <Tabs

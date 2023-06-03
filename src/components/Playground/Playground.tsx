@@ -76,7 +76,7 @@ function Playground({
 
       <div className="flex w-3/4">
         <Select
-          onValueChange={(value) => {
+          onValueChange={(value: string) => {
             updateMethod(value);
           }}
           value={request.method}

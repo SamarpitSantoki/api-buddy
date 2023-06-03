@@ -1,7 +1,9 @@
 import prisma from "@/db/prisma";
+import { auth } from "@clerk/nextjs";
 import { NextRequest } from "next/server";
 
 export async function POST(request: Request) {
+
   const req = await request.json();
   let response = {};
 

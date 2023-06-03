@@ -1,4 +1,5 @@
 "use client";
+
 import Playground from "@/components/Playground/Playground";
 import Sidebar from "@/components/Sidebar";
 import HTabs from "@/components/HTabs";
@@ -109,9 +110,9 @@ export default function Page({
         createNewPlayground={createNewPlayground}
       />
       <HTabs
-        tabs={activePlaygrounds.map((playground) => ({
-          id: playground.id?.toString() || "-1",
-          title: playground.title,
+        tabs={activePlaygrounds.map((playground: IPlayground) => ({
+          id: playground?.id?.toString() || "-1",
+          title: playground?.title,
           component: <Playground data={playground} workspaceId={parseInt(workspaceId)} />,
         }))}
         isCloseable

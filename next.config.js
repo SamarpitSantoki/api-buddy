@@ -3,15 +3,15 @@ const nextConfig = {
   redirects: async () => {
     return [
       {
-        source: "/",
-        destination: "/workspaces",
+        source: '/',
+        destination: '/workspaces',
         permanent: false,
       },
-    ];
+    ]
   },
   images: {
     unoptimized: true,
   },
 };
 
-module.exports = nextConfig;
+module.exports = nextConfig
