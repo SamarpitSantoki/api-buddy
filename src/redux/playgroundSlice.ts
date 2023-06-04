@@ -37,7 +37,6 @@ export const playgroundSlice = createSlice({
       state.playgrounds = action.payload;
     },
     createPlayground: (state, action: PayloadAction<any>) => {
-      state.playgrounds.push(action.payload);
       state.activePlaygrounds.push(action.payload);
     },
     addActivePlaygrounds: (state, action: PayloadAction<IPlayground[]>) => {

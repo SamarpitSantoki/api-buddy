@@ -48,11 +48,18 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const {userId} = auth();
+ 
   let response = {};
 
   try {
     const entry = await prisma.workspace.findMany(
+      
       {
+        where:{
+          userId: userId || "example",
+        },
+
         select:{
           id: true,
           name: true,

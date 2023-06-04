@@ -3,6 +3,7 @@ import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 interface ICreateWorkspace {
   name: string;
+  userId: string;
   type?: string;
   description?: string;
 }

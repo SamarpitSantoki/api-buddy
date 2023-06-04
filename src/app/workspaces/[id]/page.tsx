@@ -110,8 +110,8 @@ export default function Page({
         createNewPlayground={createNewPlayground}
       />
       <HTabs
-        tabs={activePlaygrounds.map((playground: IPlayground) => ({
-          id: playground?.id?.toString() || "-1",
+        tabs={activePlaygrounds.map((playground: IPlayground,index) => ({
+          id: playground?.id?.toString() || index.toString(),
           title: playground?.title,
           component: <Playground data={playground} workspaceId={parseInt(workspaceId)} />,
         }))}

@@ -11,8 +11,11 @@ import { createWorkspace, getWorkspaces } from "@/redux/workspaceSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 
 const Workspaces = () => {
+  const { userId } = useAuth();
+
   const dispatch = useAppDispatch();
   const { workspaces, isCreating, isFetching } = useSelector(
     (state: RootState) => state.workspace
@@ -23,8 +26,13 @@ const Workspaces = () => {
   });
 
   const handleCreateWorkspaceSubmit = () => {
+    if (createWorkspacePayload.name === "")
+      return alert("Workspace name cannot be empty");
+
+    if (!userId) return alert("User not found");
+
     console.log("Create Workspace");
-    dispatch(createWorkspace(createWorkspacePayload));
+    dispatch(createWorkspace({ ...createWorkspacePayload, userId }));
   };
 
   //   fetch workspaces on mount
@@ -42,11 +50,11 @@ const Workspaces = () => {
       </div>
 
       <div className="flex justify-center flex-wrap w-4/5 2xl:w-3/5  bg-card rounded-lg p-8 gap-8">
-        {isFetching ? 
+        {isFetching ? (
           <div className="flex flex-col items-center justify-center gap-4 animate-spin">
             <Loader2 size={48} />
-            </div>
-        : (
+          </div>
+        ) : (
           <>
             {workspaces.map((workspace, i) => (
               <Link href={`/workspaces/${workspace.id}`} key={i}>
@@ -63,7 +71,7 @@ const Workspaces = () => {
               header="Create a new workspace"
               triggerElement={
                 <Button className="w-72 h-full bg-primary text-white rounded-xl flex flex-col gap-4  justify-center items-center">
-                  <FolderPlus size={48}  />
+                  <FolderPlus size={48} />
                   <p className="text-lg font-medium">Create a new workspace</p>
                 </Button>
               }

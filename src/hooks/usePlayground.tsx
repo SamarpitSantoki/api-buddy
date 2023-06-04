@@ -183,7 +183,7 @@ const usePlayground = (workspaceId: number) => {
       headerParams: JSON.stringify(request.headers),
       queryParams: JSON.stringify(request.params),
       jsonParams: request.body,
-      workspaceId: 1,
+      workspaceId
     };
 
     try {
