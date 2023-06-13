@@ -58,7 +58,7 @@ function Playground({
 
   return (
     <div className="flex flex-col items-center justify-start w-full h-full gap-4 p-8 ">
-      <div className="flex justify-between w-3/4">
+      <div className="flex justify-between w-3/4  ">
         <Input
           type="text"
           value={title}
@@ -76,7 +76,7 @@ function Playground({
         </Button>
       </div>
 
-      <div className="flex w-3/4">
+      <div className="flex w-3/4 ">
         <Select
           onValueChange={(value: string) => {
             updateMethod(value);
@@ -119,7 +119,7 @@ function Playground({
           ) : null}
         </Button>
       </div>
-      <div className="flex w-3/4">
+      <div className="flex w-3/4 ">
         <HTabs
           tabs={[
             {
@@ -176,7 +176,7 @@ function Playground({
           ]}
         />
       </div>
-      <div className="flex w-3/4">
+      <div className="flex w-3/4 ">
         <div className="flex flex-col mt-8 gap-y-4">
           <div className="text-lg text-gray-500">Response</div>
           <div className="flex">
@@ -216,7 +216,7 @@ function Playground({
           </div>
         </div>
       </div>
-      <div className="flex w-3/4">
+      <div className="flex w-3/4 ">
         <HTabs
           tabs={[
             {
@@ -269,9 +269,13 @@ function Playground({
               component: (
                 <div className="w-full h-full p-4 rounded ">
                   <p className="prose">
-                    {JSON.stringify({
-                      ...response?.data,
-                    })}
+                    {
+                      typeof response?.data === "string"
+                        ? response?.data
+                        : JSON.stringify(response?.data, null, 2)
+
+
+                    }
                   </p>
                 </div>
               ),

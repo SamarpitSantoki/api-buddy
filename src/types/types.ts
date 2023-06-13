@@ -14,7 +14,7 @@ export interface IRequest {
     value: string;
   }[];
   body: string;
-
+  hasExamples: boolean;
 }
 
 export type TGetRequestResponse = Prisma.RequestGetPayload<{
@@ -30,6 +30,7 @@ export type TGetRequestResponse = Prisma.RequestGetPayload<{
     responseStatus: true;
     responseTime: true;
     title: true;
+    hasExamples: true;
   };
 }>;
 

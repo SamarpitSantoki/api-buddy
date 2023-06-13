@@ -14,7 +14,26 @@ import {
   removeActivePlayground,
 } from "@/redux/playgroundSlice";
 import { IPlayground } from "@/types/playgroundTypes";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
+import {
+  Calculator,
+  Calendar,
+  CreditCard,
+  PlusSquare,
+  Settings,
+  Smile,
+  User,
+} from "lucide-react";
 
 export default function Page({
   params,
@@ -23,7 +42,6 @@ export default function Page({
     id: string;
   };
 }) {
-
   const workspaceId = params.id;
 
   const { activePlaygrounds, currentPlayground, playgrounds } =
@@ -35,14 +53,13 @@ export default function Page({
     dispatch(getPlaygrounds(parseInt(workspaceId)));
   }, []);
 
-  const openPlayground = (data: string) => {
-    if (activePlaygrounds.find((tab: IPlayground) => tab.id === parseInt(data)))
-      return;
+  const openPlayground = (data: number) => {
+    if (activePlaygrounds.find((tab: IPlayground) => tab.id === data)) return;
 
     if (activePlaygrounds.length === 0) {
       dispatch(
         addActivePlaygrounds([
-          playgrounds.find((tab: IPlayground) => tab.id === parseInt(data))!,
+          playgrounds.find((tab: IPlayground) => tab.id === data)!,
         ])
       );
       return;
@@ -50,7 +67,7 @@ export default function Page({
 
     dispatch(
       addActivePlayground(
-        playgrounds.find((tab: IPlayground) => tab.id === parseInt(data))!
+        playgrounds.find((tab: IPlayground) => tab.id === data)!
       )
     );
   };
@@ -61,7 +78,9 @@ export default function Page({
     activeTab: string,
     setActiveTab: Dispatch<SetStateAction<string>>
   ) => {
-    dispatch(removeActivePlayground(id));
+    console.log("🚀 ~ file: page.tsx ~ line 72 ~ closePlayground ~ id", id);
+
+    dispatch(removeActivePlayground(parseInt(id)));
 
     dispatch(getPlaygrounds(parseInt(workspaceId)));
 
@@ -80,6 +99,7 @@ export default function Page({
 
   const createNewPlayground = () => {
     const payload = {
+      id: -activePlaygrounds.length - 1,
       workspaceId: workspaceId,
       title: "New Request",
       request: {
@@ -101,23 +121,118 @@ export default function Page({
     dispatch(createPlayground(payload));
   };
 
+  const [open, setOpen] = useState(false);
+  const [selectedCommand, setSelectedCommand] = useState("");
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      
+      if (e.key === "J" || (e.key === " " && e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+        setSelectedCommand("");
+      }
+
+      if (e.key === "Escape") {
+        setOpen(false); 
+      }
+
+      // if (e.key === "Enter") {
+      //   handleCommand(selectedCommand);
+      // }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  const handleCommand = (command: string) => {
+    console.log("command", command);
+
+    switch (command) {
+      case "create-new-api":
+        createNewPlayground();
+        break;
+      default:
+        break;
+    }
+    setSelectedCommand("");
+    setOpen(false);
+  };
+
   return (
     <div className="flex w-full min-h-full">
       <Sidebar
         playgrounds={playgrounds}
-        activePlaygrounds={activePlaygrounds}
         openPlayground={openPlayground}
         createNewPlayground={createNewPlayground}
       />
       <HTabs
-        tabs={activePlaygrounds.map((playground: IPlayground,index) => ({
+        tabs={activePlaygrounds.map((playground: IPlayground, index) => ({
           id: playground?.id?.toString() || index.toString(),
           title: playground?.title,
-          component: <Playground data={playground} workspaceId={parseInt(workspaceId)} />,
+          component: (
+            <Playground data={playground} workspaceId={parseInt(workspaceId)} />
+          ),
         }))}
         isCloseable
         onClose={closePlayground}
       />
+
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput
+          placeholder="Type a command or search..."
+          value={selectedCommand}
+          onValueChange={(value) => {
+            setSelectedCommand(value);
+          }}
+        />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Suggestions">
+            <CommandItem
+              value="create-new-api"
+              onSelect={(command) => {
+                console.log("selected", command);
+                handleCommand(command);
+              }}
+            >
+              <PlusSquare className="mr-2 h-4 w-4" />
+              <span>Create New Api</span>
+            </CommandItem>
+            {/* <CommandItem>
+              <Smile className="mr-2 h-4 w-4" />
+              <span>Search Emoji</span>
+            </CommandItem>
+            <CommandItem>
+              <Calculator className="mr-2 h-4 w-4" />
+              <span>Calculator</span>
+            </CommandItem> */}
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup heading="More Commands Comming Soon">
+            {/* <CommandItem
+              onSelect={() => {
+                console.log("selected");
+              }}
+            >
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+              <CommandShortcut>⌘P</CommandShortcut>
+            </CommandItem>
+            <CommandItem>
+              <CreditCard className="mr-2 h-4 w-4" />
+              <span>Billing</span>
+              <CommandShortcut>⌘B</CommandShortcut>
+            </CommandItem>
+            <CommandItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+              <CommandShortcut>⌘S</CommandShortcut>
+            </CommandItem> */}
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
     </div>
   );
 }

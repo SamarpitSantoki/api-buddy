@@ -55,9 +55,9 @@ export const playgroundSlice = createSlice({
       );
     },
 
-    removeActivePlayground: (state, action: PayloadAction<string>) => {
+    removeActivePlayground: (state, action: PayloadAction<number>) => {
       state.activePlaygrounds = state.activePlaygrounds.filter(
-        (playground) => playground.id !== parseInt(action.payload)
+        (playground) => playground.id !== action.payload
       );
     },
   },

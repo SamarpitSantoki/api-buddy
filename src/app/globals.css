@@ -80,3 +80,18 @@
   }
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  /* set color */
+  height: 0;
+  background-color: transparent
+}
+
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: 0.5rem;
+  border: 4px solid var(--background);
+
+}
+
+

@@ -24,6 +24,7 @@ const usePlayground = (workspaceId: number) => {
     isSaving: false,
     isSending: false,
   });
+
   const [request, setRequest] = useState<IRequest>({
     id: -1,
     url: "",
@@ -32,6 +33,7 @@ const usePlayground = (workspaceId: number) => {
     params: [],
     body: "",
     workspaceId: workspaceId,
+    hasExamples: false,
   });
   const [response, setResponse] = useState<any>();
 
@@ -104,24 +106,14 @@ const usePlayground = (workspaceId: number) => {
   const makeRequest = async () => {
     setPlaygroundSate((prev) => ({ ...prev, isSending: true }));
 
-    axios.interceptors.request.use(
-      (request: InternalAxiosRequestConfig<any>) => {
-        request.headers.startTime = new Date().getTime();
-        return request;
-      }
-    );
-    axios.interceptors.response.use(updateEndTime, (error: any) => {
-      if (error.response) return Promise.reject(updateEndTime(error.response));
-
-      return Promise.reject(error);
-    });
-
     //  validate url
     const url = formatUrl(request.url);
     setRequest((prev) => ({ ...prev, url }));
 
     try {
-      const response = await axios.request({
+      let whereToRequest = "server";
+
+      let payload = {
         url,
         method: request.method,
         headers: request?.headers?.reduce?.((acc: any, curr) => {
@@ -137,8 +129,23 @@ const usePlayground = (workspaceId: number) => {
           return acc;
         }, {}),
         data: request.body,
-      });
-      setResponse(response);
+      };
+
+      if (url.includes("localhost")) {
+        whereToRequest = "local";
+      }
+
+      const { data } = await axios.request(
+        whereToRequest === "server"
+          ? {
+              url: "/api/proxy",
+              method: "post",
+              data: payload,
+            }
+          : (payload as InternalAxiosRequestConfig<any>)
+      );
+
+      setResponse(data.data);
     } catch (error: any) {
       console.log(error);
 
@@ -176,14 +183,14 @@ const usePlayground = (workspaceId: number) => {
     setPlaygroundSate((prev) => ({ ...prev, isSaving: true }));
 
     const payload: TCreateRequestType = {
-      id: request.id,
+      id: id,
       title,
       requestUrl: request.url,
       requestMethod: request.method,
       headerParams: JSON.stringify(request.headers),
       queryParams: JSON.stringify(request.params),
       jsonParams: request.body,
-      workspaceId
+      workspaceId,
     };
 
     try {
@@ -194,33 +201,36 @@ const usePlayground = (workspaceId: number) => {
 
         const remoteData: TGetRequestResponse = data.data;
 
-        const formatedData = {
+      const formatedData: IPlayground = {
+        id: remoteData.id,
+        title: remoteData.title!,
+        request: {
           id: remoteData.id,
-          title: remoteData.title!,
-          request: {
-            id: remoteData.id,
-            url: remoteData.requestUrl!,
-            method: remoteData.requestMethod!,
-            headers: remoteData.headerParams
-              ? JSON.parse(remoteData.headerParams)
-              : [],
-            params: remoteData.queryParams
-              ? JSON.parse(remoteData.queryParams)
-              : [],
-            body: remoteData.jsonParams!,
-          },
-          playgroundState: {
-            isSaved: true,
-            isEdited: false,
-            isSaving: false,
-            isSending: false,
-          },
-        };
+          url: remoteData.requestUrl!,
+          method: remoteData.requestMethod!,
+          headers: remoteData.headerParams
+            ? JSON.parse(remoteData.headerParams)
+            : [],
+          params: remoteData.queryParams
+            ? JSON.parse(remoteData.queryParams)
+            : [],
+          body: remoteData.jsonParams!,
+          hasExamples: false,
+          workspaceId
+        },
+        response: null,
+        playgroundState: {
+          isSaved: true,
+          isEdited: false,
+          isSaving: false,
+          isSending: false,
+        },
+      };
 
         setPlaygroundStateFromRemote(formatedData as any);
 
-        console.log(data);
-      }
+      console.log(data);
+    }
 
       setPlaygroundSate((prev) => ({ ...prev, isSaving: false }));
 
@@ -233,8 +243,6 @@ const usePlayground = (workspaceId: number) => {
       }
     }
   };
-
-  // TODO: sync the activePlayground with the current update
 
   return {
     id,
