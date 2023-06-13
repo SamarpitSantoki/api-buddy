@@ -23,19 +23,26 @@ interface ITabsProps {
 function HTabs({ tabs, isCloseable, onClose }: ITabsProps) {
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.id);
 
-  useEffect(()=>{
-    if(activeTab) return;
-    setActiveTab(tabs?.[0]?.id)
-  },[tabs])
+  useEffect(() => {
+    if (tabs.length === 0) {
+      setActiveTab("false");
+      return;
+    }
+
+    if (activeTab === "false" && tabs.length > 0) setActiveTab(tabs?.[0]?.id);
+
+    if (activeTab) return;
+    setActiveTab(tabs?.[0]?.id);
+  }, [tabs]);
 
   return (
     <Tabs
       defaultValue={tabs?.[0]?.id}
-      className="w-full mx-2"
+      className="w-full mx-2 overflow-hidden "
       value={activeTab}
       onValueChange={(value) => setActiveTab(value)}
     >
-      <TabsList className="flex justify-start px-8 ">
+      <TabsList className="flex justify-start px-8 overflow-y-hidden overflow-x-scroll custom-scrollbar">
         {tabs.map((tab, index) => (
           <>
             <TabsTrigger
@@ -74,7 +81,7 @@ function HTabs({ tabs, isCloseable, onClose }: ITabsProps) {
           </>
         ))}
       </TabsList>
-      {tabs.map((tab, index) => (
+      {tabs.map((tab, index) => ( 
         <TabsContent
           className={`${activeTab === tab.id ? "block" : "hidden"} w-full `}
           key={index}
