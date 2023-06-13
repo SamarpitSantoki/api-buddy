@@ -10,9 +10,19 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-wrap items-center gap-16 p-4 ">
-      <div className="text-center w-44">
-        <TypographyH3>Api Buddy</TypographyH3>
+    <nav className="flex flex-wrap items-center justify-between gap-16 p-4 ">
+      <div className="flex items-center gap-8">
+        <Link href="/">
+          <div className="text-center w-44">
+            <TypographyH3>Api Buddy</TypographyH3>
+          </div>
+        </Link>
+        <Link
+          href="/workspaces"
+          className="text-sm font-medium transition-colors hover:text-primary"
+        >
+          Workspaces
+        </Link>
       </div>
 
       {pathname.includes("/workspaces/") ? (
