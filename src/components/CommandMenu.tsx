@@ -61,8 +61,9 @@ function CommandMenu({ commands, handleCommand }: ICommandMenu) {
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Suggestions">
-          {commands.map((command) => (
+          {commands.map((command,index) => (
             <CommandItem
+              key={index}
               value={command.id}
               onSelect={handleSelect}
               className="flex gap-2"
