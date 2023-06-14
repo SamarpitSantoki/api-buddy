@@ -21,7 +21,7 @@ const initialState: PlaygroundSlice = {
 
 export const getPlaygrounds = createAsyncThunk(
   "playground/getPlaygrounds",
-  async (workspaceId: number) => {
+  async (workspaceId: string) => {
     const res = await axios.get("/api/request?workspaceId=" + workspaceId);
 
     return res.data.data;
@@ -55,11 +55,15 @@ export const playgroundSlice = createSlice({
       );
     },
 
-    removeActivePlayground: (state, action: PayloadAction<number>) => {
+    removeActivePlayground: (state, action: PayloadAction<string>) => {
       state.activePlaygrounds = state.activePlaygrounds.filter(
         (playground) => playground.id !== action.payload
       );
     },
+    closeAllActive: (state) => {
+      state.activePlaygrounds = []
+      state.playgrounds = []
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(getPlaygrounds.fulfilled, (state, action) => {
@@ -99,6 +103,7 @@ export const {
   addActivePlayground,
   addCurrentPlayground,
   removeActivePlayground,
+  closeAllActive,
   updatePlayground,
   createPlayground,
 } = playgroundSlice.actions;

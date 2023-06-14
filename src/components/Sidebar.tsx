@@ -11,7 +11,7 @@ import {
 
 interface ISidebarProps {
   playgrounds: IPlayground[];
-  openPlayground: (id: number) => void;
+  openPlayground: (id: string) => void;
   createNewPlayground: () => void;
 }
 

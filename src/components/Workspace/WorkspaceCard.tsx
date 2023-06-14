@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { FileInput } from "lucide-react";
+import moment from "moment";
 import React from "react";
 
 interface ProjectCardProps {
@@ -36,7 +37,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <CardFooter className=" justify-between items-center text-sm py-5">
         <div>
           <p>Requests: {requestsCount}</p>
-          <p>EditedAt: {editedAt}</p>
+          <p>EditedAt: {moment(editedAt).format('ll')}</p>
         </div>
         <div className="flex justify-center items-center rounded-full bg-primary text-white w-10 h-8">
           <FileInput size={16} />

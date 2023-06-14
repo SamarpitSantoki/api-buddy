@@ -3,7 +3,6 @@ import { auth } from "@clerk/nextjs";
 import { NextRequest } from "next/server";
 
 export async function POST(request: Request) {
-
   const req = await request.json();
   let response = {};
 
@@ -16,7 +15,7 @@ export async function POST(request: Request) {
   try {
     const entry = await prisma.request.upsert({
       where: {
-        id: req?.id || 0,
+        id: req?.id || "0",
       },
       update: req,
       create: req,
@@ -40,15 +39,22 @@ export async function POST(request: Request) {
 export async function GET(request: NextRequest) {
   let workspaceId = request.nextUrl.searchParams.get("workspaceId");
   let response = {};
-  
+
+  if (!workspaceId) {
+    response = {
+      data: [],
+      status: false,
+    };
+
+    return new Response(JSON.stringify(response));
+  }
+
   try {
-    const entry = await prisma.request.findMany(
-      {
-        where: {
-          workspaceId: Number(workspaceId)
-        }
-      }
-    );
+    const entry = await prisma.request.findMany({
+      where: {
+        workspaceId: workspaceId,
+      },
+    });
 
     response = {
       data: entry,
@@ -75,7 +81,7 @@ export async function DELETE(request: Request) {
   try {
     const entry = await prisma.request.delete({
       where: {
-        id: Number(id) || -1,
+        id: id || "-1",
       },
     });
 

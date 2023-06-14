@@ -2,10 +2,9 @@ import prisma from "@/db/prisma";
 import { auth } from "@clerk/nextjs";
 
 export async function POST(request: Request) {
+  const { userId } = auth();
 
-  const {userId} = auth();
-  
-  if(!userId){
+  if (!userId) {
     return new Response("Unauthorized", { status: 401 });
   }
 
@@ -26,7 +25,7 @@ export async function POST(request: Request) {
   try {
     const entry = await prisma.workspace.upsert({
       where: {
-        id: req?.id || 0,
+        id: req.id || "new",
       },
       update: req,
       create: req,
@@ -48,34 +47,30 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const {userId} = auth();
- 
+  const { userId } = auth();
+
   let response = {};
 
   try {
-    const entry = await prisma.workspace.findMany(
-      
-      {
-        where:{
-          userId: userId || "example",
+    const entry = await prisma.workspace.findMany({
+      where: {
+        userId: userId || "example",
+      },
+
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
+        requests: {
+          select: {
+            id: true,
+          },
         },
-
-        select:{
-          id: true,
-          name: true,
-          type: true,
-          description: true,
-          createdAt: true,
-          updatedAt: true,
-          requests: {
-            select: {
-              id: true,
-            }
-          }
-        }
-      }
-    );
-
+      },
+    });
 
     response = {
       data: entry,
@@ -93,12 +88,12 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const {userId} = auth();
-  
-  if(!userId){
+  const { userId } = auth();
+
+  if (!userId) {
     return new Response("Unauthorized", { status: 401 });
   }
-  
+
   let response = {};
 
   try {
@@ -106,7 +101,7 @@ export async function DELETE(request: Request) {
 
     const entry = await prisma.workspace.delete({
       where: {
-        id: req?.id || 0,
+        id: req?.id || "0",
       },
     });
 

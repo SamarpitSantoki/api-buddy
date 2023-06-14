@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Request {
-  id              Int      @id @default(autoincrement())
+  id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   title           String?
@@ -24,11 +24,11 @@ model Request {
   responseSize    Float?
   responseHeaders String?
   responseBody    String?
-  workspaceId     Int
+  workspaceId     String
   hasExamples     Boolean  @default(false)
 
   exampleOf   Request?  @relation("ExampleOf", fields: [exampleOfId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  exampleOfId Int?
+  exampleOfId String?
   examples    Request[] @relation("ExampleOf")
 
   workspace Workspace @relation(fields: [workspaceId], references: [id])
@@ -38,9 +38,9 @@ model Request {
 }
 
 model Workspace {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(uuid())
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime  @updatedAt
   name        String
   description String?
   type        String    @default("PERSONAL")

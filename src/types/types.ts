@@ -1,8 +1,8 @@
 import { Prisma } from "@prisma/client";
 
 export interface IRequest {
-  workspaceId: number;
-  id: number;
+  workspaceId: string;
+  id: string;
   url: string;
   method: string;
   headers: {

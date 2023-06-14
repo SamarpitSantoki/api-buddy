@@ -3,6 +3,7 @@ import "./globals.css";
 import { Poppins } from "next/font/google";
 import { Providers } from "@/redux/providers";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Mixpanel } from "@/lib/mixpanel";
 
 const poppins = Poppins({ weight: ["500"], subsets: ["latin"] });
 
@@ -16,6 +17,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+
   return (
     <ClerkProvider>
       <html lang="en">

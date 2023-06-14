@@ -1,7 +1,7 @@
 "use client";
 
 import ProjectCard from "../../components/Workspace/WorkspaceCard";
-import { FolderPlus, Loader2 } from "lucide-react";
+import { FolderPlus, Loader2, PlusSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateDialog from "@/components/Workspace/CreateDialog";
 import { TypographyMuted } from "@/components/ui/typography";
@@ -12,6 +12,16 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
+import { Mixpanel } from "@/lib/mixpanel";
+import CommandMenu from "@/components/CommandMenu";
+
+const commands = [
+  {
+    id: "create-workspace",
+    label: "Create Workspace",
+    icon: <PlusSquare />,
+  },
+];
 
 const Workspaces = () => {
   const { userId } = useAuth();
@@ -33,12 +43,28 @@ const Workspaces = () => {
 
     console.log("Create Workspace");
     dispatch(createWorkspace({ ...createWorkspacePayload, userId }));
+    document.getElementById("create-new-workspace")?.click();
+
   };
 
   //   fetch workspaces on mount
   useEffect(() => {
+    Mixpanel.track("workspace_visited");
+
     dispatch(getWorkspaces());
   }, []);
+
+  const handleCommand = (command: string) => {
+    console.log("command", command);
+
+    switch (command) {
+      case "create-workspace":
+        document.getElementById("create-new-workspace")?.click();
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="w-screen min-h-full bg-accent flex flex-col items-center">
@@ -70,7 +96,10 @@ const Workspaces = () => {
             <CreateDialog
               header="Create a new workspace"
               triggerElement={
-                <Button className="w-72 h-full bg-primary text-white rounded-xl flex flex-col gap-4  justify-center items-center">
+                <Button
+                  className="w-72 h-full bg-primary text-white rounded-xl flex flex-col gap-4  justify-center items-center"
+                  id="create-new-workspace"
+                >
                   <FolderPlus size={48} />
                   <p className="text-lg font-medium">Create a new workspace</p>
                 </Button>
@@ -131,6 +160,8 @@ const Workspaces = () => {
           </>
         )}
       </div>
+
+      <CommandMenu commands={commands} handleCommand={handleCommand} />
     </div>
   );
 };

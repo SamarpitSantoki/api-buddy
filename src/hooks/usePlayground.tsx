@@ -1,4 +1,5 @@
 "use client";
+import { Mixpanel } from "@/lib/mixpanel";
 import { useAppDispatch } from "@/redux/hooks";
 import { getPlaygrounds, updatePlayground } from "@/redux/playgroundSlice";
 import { IPlayground } from "@/types/playgroundTypes";
@@ -7,16 +8,20 @@ import {
   TCreateRequestType,
   TGetRequestResponse,
 } from "@/types/types";
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const usePlayground = (workspaceId: number) => {
+const usePlayground = (workspaceId: string) => {
   const dispatch = useAppDispatch();
 
   const router = useRouter();
 
-  const [id, setId] = useState<number>(-1);
+  const [id, setId] = useState<string>('-1');
   const [title, setTitle] = useState("Request");
   const [playgroundState, setPlaygroundSate] = useState({
     isSaved: false,
@@ -26,7 +31,7 @@ const usePlayground = (workspaceId: number) => {
   });
 
   const [request, setRequest] = useState<IRequest>({
-    id: -1,
+    id: "-1",
     url: "",
     method: "",
     headers: [],
@@ -197,6 +202,10 @@ const usePlayground = (workspaceId: number) => {
       const { data } = await axios.post("/api/request", payload);
 
       if (data.status) {
+        if (!!!request.id) {
+          Mixpanel.track("request_created");
+        }
+
         setPlaygroundSate((prev) => ({ ...prev, isSaved: true }));
 
         const remoteData: TGetRequestResponse = data.data;
@@ -237,9 +246,9 @@ const usePlayground = (workspaceId: number) => {
       dispatch(getPlaygrounds(workspaceId));
     } catch (error: any) {
       console.log(error);
-      
+
       if (error.response.status === 401) {
-          router.push("/sign-in?redirectUrl="+ window.location.pathname);
+        router.push("/sign-in?redirectUrl=" + window.location.pathname);
       }
     }
   };

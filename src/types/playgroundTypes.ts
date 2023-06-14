@@ -1,6 +1,6 @@
 import { IRequest } from "./types";
 export interface IPlayground {
-  id: number;
+  id: string;
   title: string;
   playgroundState: {
     isSaved: boolean;

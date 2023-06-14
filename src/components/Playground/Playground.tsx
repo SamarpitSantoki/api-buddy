@@ -26,7 +26,7 @@ function Playground({
   workspaceId,
 }: {
   data: IPlayground;
-  workspaceId: number;
+  workspaceId: string;
 }) {
   const {
     request,
@@ -121,7 +121,7 @@ function Playground({
       </div>
       <div className="flex w-3/4 ">
         <HTabs
-          tabs={[
+          _tabs={[
             {
               id: "headers",
               title: "Headers",
@@ -174,6 +174,8 @@ function Playground({
               ),
             },
           ]}
+          workspaceId={workspaceId}
+
         />
       </div>
       <div className="flex w-3/4 ">
@@ -218,7 +220,7 @@ function Playground({
       </div>
       <div className="flex w-3/4 ">
         <HTabs
-          tabs={[
+          _tabs={[
             {
               id: "json",
               title: "JSON",
@@ -290,6 +292,7 @@ function Playground({
               ),
             },
           ]}
+          workspaceId={workspaceId}
         />
       </div>
     </div>

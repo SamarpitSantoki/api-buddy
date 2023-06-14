@@ -4,13 +4,16 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Separator } from "./ui/separator";
+import { IPlayground } from "@/types/playgroundTypes";
+import Playground from "./Playground/Playground";
 
 interface ITabsProps {
-  tabs: {
+  _tabs: {
     id: string;
     title: string;
     component: JSX.Element;
   }[];
+  workspaceId: string;
   isCloseable?: boolean;
   onClose?: (
     id: string,
@@ -20,7 +23,15 @@ interface ITabsProps {
   ) => void;
 }
 
-function HTabs({ tabs, isCloseable, onClose }: ITabsProps) {
+function HTabs({ _tabs, isCloseable, onClose, workspaceId }: ITabsProps) {
+  const [tabs, setTabs] = useState<
+    {
+      id: string;
+      title: string;
+      component: JSX.Element;
+    }[]
+  >([]);
+
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.id);
 
   useEffect(() => {
@@ -35,6 +46,16 @@ function HTabs({ tabs, isCloseable, onClose }: ITabsProps) {
     setActiveTab(tabs?.[0]?.id);
   }, [tabs]);
 
+  useEffect(() => {
+    setTabs(_tabs || []);
+
+    return () => {
+      setTabs([]);
+    };
+  }, [_tabs]);
+
+  if (tabs.length <= 0) return <></>;
+
   return (
     <Tabs
       defaultValue={tabs?.[0]?.id}
@@ -43,7 +64,7 @@ function HTabs({ tabs, isCloseable, onClose }: ITabsProps) {
       onValueChange={(value) => setActiveTab(value)}
     >
       <TabsList className="flex justify-start px-8 overflow-y-hidden overflow-x-scroll custom-scrollbar">
-        {tabs.map((tab, index) => (
+        {tabs?.map((tab, index) => (
           <>
             <TabsTrigger
               className="flex items-center justify-between w-32 mx-2 group"
@@ -81,7 +102,7 @@ function HTabs({ tabs, isCloseable, onClose }: ITabsProps) {
           </>
         ))}
       </TabsList>
-      {tabs.map((tab, index) => ( 
+      {tabs?.map((tab, index) => (
         <TabsContent
           className={`${activeTab === tab.id ? "block" : "hidden"} w-full `}
           key={index}
