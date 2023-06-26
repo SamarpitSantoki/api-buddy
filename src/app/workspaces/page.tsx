@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { Mixpanel } from "@/lib/mixpanel";
 import CommandMenu from "@/components/CommandMenu";
+import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
 
 const commands = [
   {
@@ -23,8 +24,34 @@ const commands = [
   },
 ];
 
+type Inputs = {
+  name: string;
+  invites: { email: string }[];
+};
+
 const Workspaces = () => {
   const { userId } = useAuth();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      invites: [{ email: "" }],
+    },
+  });
+
+  const {
+    fields: inviteFields,
+    append: inviteAppend,
+    remove: inviteRemove,
+  } = useFieldArray({
+    control: control,
+    name: "invites",
+  });
 
   const dispatch = useAppDispatch();
   const { workspaces, isCreating, isFetching } = useSelector(
@@ -35,16 +62,12 @@ const Workspaces = () => {
     name: "",
   });
 
-  const handleCreateWorkspaceSubmit = () => {
-    if (createWorkspacePayload.name === "")
-      return alert("Workspace name cannot be empty");
-
+  const handleCreateWorkspaceSubmit: SubmitHandler<Inputs> = (data) => {
     if (!userId) return alert("User not found");
 
     console.log("Create Workspace");
-    dispatch(createWorkspace({ ...createWorkspacePayload, userId }));
+    dispatch(createWorkspace({ ...data, userId }));
     document.getElementById("create-new-workspace")?.click();
-
   };
 
   //   fetch workspaces on mount
@@ -105,19 +128,23 @@ const Workspaces = () => {
                 </Button>
               }
               contentElement={
-                <div className="flex flex-col">
+                <form
+                  className="flex flex-col"
+                  onSubmit={handleSubmit(handleCreateWorkspaceSubmit)}
+                >
                   <label className="text-sm">Name</label>
                   <input
                     className="w-full p-2 mb-2 border border-gray-300 rounded-md"
                     type="text"
-                    value={createWorkspacePayload.name}
-                    onChange={(e) =>
-                      setCreateWorkspacePayload({
-                        ...createWorkspacePayload,
-                        name: e.target.value,
-                      })
-                    }
+                    placeholder="Workspace Name"
+                    {...register("name", {
+                      required: true,
+                    })}
                   />
+                  {errors.name && (
+                    <span className="text-red-500">Name is required</span>
+                  )}
+
                   {/* share with option */}
 
                   {/* coming soon  */}
@@ -128,33 +155,50 @@ const Workspaces = () => {
                       <TypographyMuted>Coming Soon</TypographyMuted>
                       Share with ( upto 3 members)
                     </label>
-                    <input
-                      disabled
-                      className="w-full p-2 mb-2 border border-gray-300 rounded-md"
-                      type="text"
-                    />
-                    <input
-                      disabled
-                      className="w-full p-2 mb-2 border border-gray-300 rounded-md"
-                      type="text"
-                    />
-                    <input
-                      disabled
-                      className="w-full p-2 mb-2 border border-gray-300 rounded-md"
-                      type="text"
-                    />
+                    {inviteFields.map((field, index) => (
+                      <div className="flex flex-row gap-2" key={field.id}>
+                        <input
+                          className="w-full p-2 mb-2 border border-gray-300 rounded-md"
+                          type="email"
+                          placeholder="Email"
+                          {...register(`invites.${index}.email`)}
+                        />
+                        <button
+                          className="w-8 h-8 bg-primary rounded-full flex justify-center items-center text-white"
+                          onClick={() => inviteRemove(index)}
+                        >
+                          -
+                        </button>
+
+                        {index === inviteFields.length - 1 && (
+                          <button
+                            className="w-8 h-8 bg-primary rounded-full flex justify-center items-center text-white"
+                            onClick={() => inviteAppend({ email: "" })}
+                          >
+                            +
+                          </button>
+                        )}
+
+                        {/* <input
+                          className="w-full p-2 mb-2 border border-gray-300 rounded-md"
+                          type="text"
+                          placeholder="Role"
+                          {...register(`invites.${index}.role` as const)}
+                        /> */}
+                      </div>
+                    ))}
                   </div>
 
                   <Button
                     className="w-full"
-                    onClick={handleCreateWorkspaceSubmit}
+                    type="submit"
                   >
                     Create
                     {isCreating ? (
                       <div className="w-5 h-5 border-2 border-white rounded-full animate-spin"></div>
                     ) : null}
                   </Button>
-                </div>
+                </form>
               }
             />
           </>

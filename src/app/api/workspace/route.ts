@@ -1,17 +1,25 @@
+import MailInvite from "@/components/Email/InviteMail";
 import prisma from "@/db/prisma";
+import sendMail, { MailType } from "@/lib/sendMail";
+import syncUserInDb from "@/lib/syncUserWithDb";
 import { auth } from "@clerk/nextjs";
 
 export async function POST(request: Request) {
-  const { userId } = auth();
+  // const { userId, user } = auth();
+  const userId = "asdasd";
+
+
 
   if (!userId) {
     return new Response("Unauthorized", { status: 401 });
   }
 
+  // if (user?.id) {
+  //   syncUserInDb(user);
+  // }
+
   const req = await request.json();
   let response = {};
-
-  console.log(req);
 
   if (!req.name) {
     return new Response(
@@ -20,6 +28,24 @@ export async function POST(request: Request) {
         status: false,
       })
     );
+  }
+
+  // if there are invites send them
+  if (req.invites) {
+    req.invites.map((item: any) => {
+      console.log(item, "ITEMCHECK");
+
+      try {
+        sendMail({
+          to: item.email,
+          type: MailType.INVITE,
+          react: MailInvite({}),
+        });
+      } catch (e) {
+        console.log("Erorr is here");
+      }
+    });
+    delete req.invites;
   }
 
   try {

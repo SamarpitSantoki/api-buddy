@@ -8,6 +8,20 @@ datasource db {
   relationMode = "prisma"
 }
 
+model User {
+  id         String      @id @default(uuid())
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  email      String      @unique
+  firstName  String?
+  lastName   String?
+  password   String?
+  workspaces Workspace[]
+  teams      Team[]
+
+  @@map("users")
+}
+
 model Request {
   id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
@@ -46,7 +60,16 @@ model Workspace {
   type        String    @default("PERSONAL")
   userId      String
   requests    Request[]
+  user        User      @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "userId")
   @@map("workspaces")
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  AdminId   String
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
