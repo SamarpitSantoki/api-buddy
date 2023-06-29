@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "npx prisma generate",
-    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx  --fix"
+    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx  --fix",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.19.0",
@@ -79,6 +80,7 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
-    "@types/mixpanel-browser": "^2.38.1"
+    "@types/mixpanel-browser": "^2.38.1",
+    "husky": "^8.0.0"
   }
 }
