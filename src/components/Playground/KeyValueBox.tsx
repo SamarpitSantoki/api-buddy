@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { useEffect } from 'react';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 interface IkpProps {
   fields: {
@@ -27,7 +27,7 @@ function KeyValuBox({
 
       if (fields.length === 0) {
         addField();
-      } else if (lastField.key !== "" || lastField.value !== "") {
+      } else if (lastField.key !== '' || lastField.value !== '') {
         addField();
       }
     } else {

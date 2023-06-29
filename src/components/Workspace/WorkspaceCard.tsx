@@ -1,8 +1,8 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardFooter, CardHeader } from "@/components/ui/card";
-import { FileInput } from "lucide-react";
-import moment from "moment";
-import React from "react";
+import { Badge } from '@/components/ui/badge';
+import { Card, CardFooter, CardHeader } from '@/components/ui/card';
+import { FileInput } from 'lucide-react';
+import moment from 'moment';
+import React from 'react';
 
 interface ProjectCardProps {
   name: string;

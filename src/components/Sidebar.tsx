@@ -1,13 +1,12 @@
-import { IPlayground } from "@/types/playgroundTypes";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { Button } from "./ui/button";
-import { TypographyH4, TypographyLead, TypographyP } from "./ui/typography";
+import { IPlayground } from '@/types/playgroundTypes';
+import { Button } from './ui/button';
+import { TypographyP } from './ui/typography';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "./ui/accordion";
+} from './ui/accordion';
 
 interface ISidebarProps {
   playgrounds: IPlayground[];
@@ -43,20 +42,19 @@ export default function Sidebar({
               type="multiple"
             >
               <AccordionItem
-                value={playground.id?.toString() || "-1"}
+                value={playground.id?.toString() || '-1'}
                 className="border-none"
               >
-                <div className="flex justify-between hover:cursor-pointer"
+                <div
+                  className="flex justify-between hover:cursor-pointer"
                   onClick={() => openPlayground(playground.id)}
                 >
                   <TypographyP>{playground.title}</TypographyP>
-                  {
-                    playground.request.hasExamples &&
-                  <AccordionTrigger className="p-0"></AccordionTrigger>
-                  }
-
+                  {playground.request.hasExamples && (
+                    <AccordionTrigger className="p-0"></AccordionTrigger>
+                  )}
                 </div>
-                <AccordionContent className="text-left pl-2 m-0">
+                <AccordionContent className="pl-2 m-0 text-left">
                   <TypographyP>Requests</TypographyP>
                 </AccordionContent>
               </AccordionItem>

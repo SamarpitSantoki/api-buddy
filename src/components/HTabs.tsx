@@ -1,11 +1,8 @@
-"use client";
+'use client';
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Button } from "./ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Separator } from "./ui/separator";
-import { IPlayground } from "@/types/playgroundTypes";
-import Playground from "./Playground/Playground";
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Separator } from './ui/separator';
 
 interface ITabsProps {
   _tabs: {
@@ -23,7 +20,7 @@ interface ITabsProps {
   ) => void;
 }
 
-function HTabs({ _tabs, isCloseable, onClose, workspaceId }: ITabsProps) {
+function HTabs({ _tabs, isCloseable, onClose, }: ITabsProps) {
   const [tabs, setTabs] = useState<
     {
       id: string;
@@ -36,11 +33,11 @@ function HTabs({ _tabs, isCloseable, onClose, workspaceId }: ITabsProps) {
 
   useEffect(() => {
     if (tabs.length === 0) {
-      setActiveTab("false");
+      setActiveTab('false');
       return;
     }
 
-    if (activeTab === "false" && tabs.length > 0) setActiveTab(tabs?.[0]?.id);
+    if (activeTab === 'false' && tabs.length > 0) setActiveTab(tabs?.[0]?.id);
 
     if (activeTab) return;
     setActiveTab(tabs?.[0]?.id);
@@ -63,7 +60,7 @@ function HTabs({ _tabs, isCloseable, onClose, workspaceId }: ITabsProps) {
       value={activeTab}
       onValueChange={(value) => setActiveTab(value)}
     >
-      <TabsList className="flex justify-start px-8 overflow-y-hidden overflow-x-scroll custom-scrollbar">
+      <TabsList className="flex justify-start px-8 overflow-x-scroll overflow-y-hidden custom-scrollbar">
         {tabs?.map((tab, index) => (
           <>
             <TabsTrigger
@@ -104,7 +101,7 @@ function HTabs({ _tabs, isCloseable, onClose, workspaceId }: ITabsProps) {
       </TabsList>
       {tabs?.map((tab, index) => (
         <TabsContent
-          className={`${activeTab === tab.id ? "block" : "hidden"} w-full `}
+          className={`${activeTab === tab.id ? 'block' : 'hidden'} w-full `}
           key={index}
           value={tab.id}
           forceMount

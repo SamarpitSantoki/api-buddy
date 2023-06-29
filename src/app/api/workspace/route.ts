@@ -1,17 +1,15 @@
-import MailInvite from "@/components/Email/InviteMail";
-import prisma from "@/db/prisma";
-import sendMail, { MailType } from "@/lib/sendMail";
-import syncUserInDb from "@/lib/syncUserWithDb";
-import { auth } from "@clerk/nextjs";
+import MailInvite from '@/components/Email/InviteMail';
+import prisma from '@/db/prisma';
+import sendMail, { MailType } from '@/lib/sendMail';
+import syncUserInDb from '@/lib/syncUserWithDb';
+import { auth } from '@clerk/nextjs';
 
 export async function POST(request: Request) {
   // const { userId, user } = auth();
-  const userId = "asdasd";
-
-
+  const userId = 'asdasd';
 
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('Unauthorized', { status: 401 });
   }
 
   // if (user?.id) {
@@ -33,7 +31,7 @@ export async function POST(request: Request) {
   // if there are invites send them
   if (req.invites) {
     req.invites.map((item: any) => {
-      console.log(item, "ITEMCHECK");
+      console.log(item, 'ITEMCHECK');
 
       try {
         sendMail({
@@ -42,7 +40,7 @@ export async function POST(request: Request) {
           react: MailInvite({}),
         });
       } catch (e) {
-        console.log("Erorr is here");
+        console.log('Erorr is here');
       }
     });
     delete req.invites;
@@ -51,7 +49,7 @@ export async function POST(request: Request) {
   try {
     const entry = await prisma.workspace.upsert({
       where: {
-        id: req.id || "new",
+        id: req.id || 'new',
       },
       update: req,
       create: req,
@@ -80,7 +78,7 @@ export async function GET(request: Request) {
   try {
     const entry = await prisma.workspace.findMany({
       where: {
-        userId: userId || "example",
+        userId: userId || 'example',
       },
 
       select: {
@@ -117,7 +115,7 @@ export async function DELETE(request: Request) {
   const { userId } = auth();
 
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('Unauthorized', { status: 401 });
   }
 
   let response = {};
@@ -127,7 +125,7 @@ export async function DELETE(request: Request) {
 
     const entry = await prisma.workspace.delete({
       where: {
-        id: req?.id || "0",
+        id: req?.id || '0',
       },
     });
 

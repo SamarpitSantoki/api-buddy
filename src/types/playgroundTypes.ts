@@ -1,4 +1,4 @@
-import { IRequest } from "./types";
+import { IRequest } from './types';
 export interface IPlayground {
   id: string;
   title: string;

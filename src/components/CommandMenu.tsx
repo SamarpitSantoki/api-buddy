@@ -1,5 +1,5 @@
-"use client";
-import { ReactNode, useEffect, useState } from "react";
+'use client';
+import { ReactNode, useEffect, useState } from 'react';
 import {
   CommandDialog,
   CommandEmpty,
@@ -8,8 +8,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "./ui/command";
-import { IconNode, PlusSquare } from "lucide-react";
+} from './ui/command';
 
 interface ICommandItem {
   id: string;
@@ -24,29 +23,29 @@ interface ICommandMenu {
 
 function CommandMenu({ commands, handleCommand }: ICommandMenu) {
   const [open, setOpen] = useState(false);
-  const [selectedCommand, setSelectedCommand] = useState("");
+  const [selectedCommand, setSelectedCommand] = useState('');
 
   const handleSelect = (command: string) => {
     handleCommand(command);
     setOpen(false);
-    setSelectedCommand("");
+    setSelectedCommand('');
   };
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "J" || (e.key === " " && e.ctrlKey)) {
+      if (e.key === 'J' || (e.key === ' ' && e.ctrlKey)) {
         e.preventDefault();
         setOpen((open) => !open);
-        setSelectedCommand("");
+        setSelectedCommand('');
       }
 
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         setOpen(false);
       }
     };
 
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
   }, []);
 
   return (
@@ -74,11 +73,11 @@ function CommandMenu({ commands, handleCommand }: ICommandMenu) {
           ))}
 
           {/* <CommandItem>
-              <Smile className="mr-2 h-4 w-4" />
+              <Smile className="w-4 h-4 mr-2" />
               <span>Search Emoji</span>
             </CommandItem>
             <CommandItem>
-              <Calculator className="mr-2 h-4 w-4" />
+              <Calculator className="w-4 h-4 mr-2" />
               <span>Calculator</span>
             </CommandItem> */}
         </CommandGroup>
@@ -89,17 +88,17 @@ function CommandMenu({ commands, handleCommand }: ICommandMenu) {
                 console.log("selected");
               }}
             >
-              <User className="mr-2 h-4 w-4" />
+              <User className="w-4 h-4 mr-2" />
               <span>Profile</span>
               <CommandShortcut>⌘P</CommandShortcut>
             </CommandItem>
             <CommandItem>
-              <CreditCard className="mr-2 h-4 w-4" />
+              <CreditCard className="w-4 h-4 mr-2" />
               <span>Billing</span>
               <CommandShortcut>⌘B</CommandShortcut>
             </CommandItem>
             <CommandItem>
-              <Settings className="mr-2 h-4 w-4" />
+              <Settings className="w-4 h-4 mr-2" />
               <span>Settings</span>
               <CommandShortcut>⌘S</CommandShortcut>
             </CommandItem> */}

@@ -12,6 +12,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  eslint: {
+    dirs: ['app', 'components', 'lib', 'redux',],
+    ignoreDuringBuilds: true,
+  },
+
 };
 
 module.exports = nextConfig

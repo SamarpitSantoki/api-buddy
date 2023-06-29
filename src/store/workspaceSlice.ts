@@ -1,5 +1,5 @@
-import { IRequest } from "@/types/types";
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { IRequest } from '@/types/types';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 interface ICreateWorkspace {
   name: string;
@@ -36,10 +36,10 @@ const initialState: WorkspaceState = {
 };
 
 export const getWorkspaces = createAsyncThunk(
-  "workspace/getWorkspaces",
+  'workspace/getWorkspaces',
   async () => {
-    const response = await fetch("/api/workspace", {
-      method: "GET",
+    const response = await fetch('/api/workspace', {
+      method: 'GET',
     });
     const data = await response.json();
     return data;
@@ -47,10 +47,10 @@ export const getWorkspaces = createAsyncThunk(
 );
 
 export const createWorkspace = createAsyncThunk(
-  "workspace/createWorkspace",
+  'workspace/createWorkspace',
   async (data: ICreateWorkspace) => {
-    const response = await fetch("/api/workspace", {
-      method: "POST",
+    const response = await fetch('/api/workspace', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
     const res = await response.json();
@@ -59,7 +59,7 @@ export const createWorkspace = createAsyncThunk(
 );
 
 export const workspaceSlice = createSlice({
-  name: "workspace",
+  name: 'workspace',
   initialState,
   reducers: {
     setWorkspaces: (state, action: PayloadAction<IWorkspace[]>) => {

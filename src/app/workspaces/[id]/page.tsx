@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Playground from "@/components/Playground/Playground";
-import Sidebar from "@/components/Sidebar";
-import HTabs from "@/components/HTabs";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import Playground from '@/components/Playground/Playground';
+import Sidebar from '@/components/Sidebar';
+import HTabs from '@/components/HTabs';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   addActivePlayground,
   addActivePlaygrounds,
@@ -12,22 +12,22 @@ import {
   playgroundSliceState,
   removeActivePlayground,
   closeAllActive,
-} from "@/redux/playgroundSlice";
-import { IPlayground } from "@/types/playgroundTypes";
-import { Dispatch, SetStateAction, useEffect } from "react";
-import CommandMenu from "@/components/CommandMenu";
-import { ArrowLeft, PlusSquare } from "lucide-react";
-import { useRouter } from "next/navigation";
+} from '@/store/playgroundSlice';
+import { IPlayground } from '@/types/playgroundTypes';
+import { Dispatch, SetStateAction, useEffect } from 'react';
+import CommandMenu from '@/components/CommandMenu';
+import { ArrowLeft, PlusSquare } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const _commands = [
   {
-    id: "create-new-api",
-    label: "Create New Api",
+    id: 'create-new-api',
+    label: 'Create New Api',
     icon: <PlusSquare />,
   },
   {
-    id: "goto-workspaces",
-    label: "Goto Workspaces",
+    id: 'goto-workspaces',
+    label: 'Goto Workspaces',
     icon: <ArrowLeft />,
   },
 ];
@@ -43,7 +43,7 @@ export default function Page({
 
   const workspaceId = params.id;
 
-  const { activePlaygrounds, currentPlayground, playgrounds } =
+  const { activePlaygrounds, playgrounds } =
     useAppSelector(playgroundSliceState);
 
   const dispatch = useAppDispatch();
@@ -79,8 +79,6 @@ export default function Page({
     activeTab: string,
     setActiveTab: Dispatch<SetStateAction<string>>
   ) => {
-    console.log("🚀 ~ file: page.tsx ~ line 72 ~ closePlayground ~ id", id);
-
     dispatch(removeActivePlayground(id));
 
     dispatch(getPlaygrounds(workspaceId));
@@ -89,9 +87,9 @@ export default function Page({
 
     if (activeTab === id) {
       if (index === 0) {
-        setActiveTab(activePlaygrounds[1].id?.toString() || "-1");
+        setActiveTab(activePlaygrounds[1].id?.toString() || '-1');
       } else {
-        setActiveTab(activePlaygrounds[index - 1].id?.toString() || "-1");
+        setActiveTab(activePlaygrounds[index - 1].id?.toString() || '-1');
       }
     }
 
@@ -103,12 +101,12 @@ export default function Page({
     const payload = {
       id: -activePlaygrounds.length - 1,
       workspaceId: workspaceId,
-      title: "New Request",
+      title: 'New Request',
       request: {
-        url: "",
-        method: "GET",
+        url: '',
+        method: 'GET',
         headers: [],
-        body: "",
+        body: '',
         params: [],
       },
       response: null,
@@ -125,14 +123,12 @@ export default function Page({
 
   // handle commands of CommandMenu
   const handleCommand = (command: string) => {
-    console.log("command", command);
-
     switch (command) {
-      case "create-new-api":
+      case 'create-new-api':
         createNewPlayground();
         break;
-      case "goto-workspaces":
-        router.push("/workspaces");
+      case 'goto-workspaces':
+        router.push('/workspaces');
       default:
         break;
     }
@@ -140,7 +136,7 @@ export default function Page({
 
   useEffect(() => {
     return () => {
-      dispatch(closeAllActive())
+      dispatch(closeAllActive());
     };
   }, []);
 

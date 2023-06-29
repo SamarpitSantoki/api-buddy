@@ -1,10 +1,9 @@
-import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTrigger,
-} from "../ui/dialog";
+} from '../ui/dialog';
 
 interface CreateDialogProps {
   triggerElement: React.ReactNode;
@@ -12,15 +11,17 @@ interface CreateDialogProps {
   contentElement: React.ReactNode;
 }
 
-function CreateDialog({ triggerElement, header,contentElement }: CreateDialogProps) {
+function CreateDialog({
+  triggerElement,
+  header,
+  contentElement,
+}: CreateDialogProps) {
   return (
     <Dialog>
       <DialogTrigger className="w-auto h-auto">{triggerElement}</DialogTrigger>
       <DialogContent>
         <DialogHeader>{header}</DialogHeader>
-        {
-          contentElement
-        }
+        {contentElement}
       </DialogContent>
     </Dialog>
   );

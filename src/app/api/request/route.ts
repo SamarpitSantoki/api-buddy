@@ -1,6 +1,6 @@
-import prisma from "@/db/prisma";
-import { auth } from "@clerk/nextjs";
-import { NextRequest } from "next/server";
+import prisma from '@/db/prisma';
+import { auth } from '@clerk/nextjs';
+import { NextRequest } from 'next/server';
 
 export async function POST(request: Request) {
   const req = await request.json();
@@ -9,13 +9,13 @@ export async function POST(request: Request) {
   console.log(req);
 
   if (!req.label) {
-    req.label = req.title.toLowerCase().split(" ").join("-");
+    req.label = req.title.toLowerCase().split(' ').join('-');
   }
 
   try {
     const entry = await prisma.request.upsert({
       where: {
-        id: req?.id || "0",
+        id: req?.id || '0',
       },
       update: req,
       create: req,
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: NextRequest) {
-  let workspaceId = request.nextUrl.searchParams.get("workspaceId");
+  let workspaceId = request.nextUrl.searchParams.get('workspaceId');
   let response = {};
 
   if (!workspaceId) {
@@ -74,14 +74,14 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: Request) {
   let response = {};
 
-  const id = request.url.split("?")[1].split("=")[1];
+  const id = request.url.split('?')[1].split('=')[1];
 
-  console.log("context", id);
+  console.log('context', id);
 
   try {
     const entry = await prisma.request.delete({
       where: {
-        id: id || "-1",
+        id: id || '-1',
       },
     });
 

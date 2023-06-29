@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import usePlayground from "@/hooks/usePlayground";
-import HTabs from "../HTabs";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import usePlayground from '@/hooks/usePlayground';
+import HTabs from '../HTabs';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 import {
   Select,
   SelectContent,
@@ -12,14 +12,14 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import KeyValueBox from "./KeyValueBox";
-import { IPlayground } from "@/types/playgroundTypes";
-import { useEffect } from "react";
-import { TypographyP } from "../ui/typography";
-import { Loader2 } from "lucide-react";
-import { Editor } from "@monaco-editor/react";
-import prettyBytes from "@/lib/prettyBytes";
+} from '../ui/select';
+import KeyValueBox from './KeyValueBox';
+import { IPlayground } from '@/types/playgroundTypes';
+import { useEffect } from 'react';
+import { TypographyP } from '../ui/typography';
+import { Loader2 } from 'lucide-react';
+import { Editor } from '@monaco-editor/react';
+import prettyBytes from '@/lib/prettyBytes';
 
 function Playground({
   data,
@@ -123,8 +123,8 @@ function Playground({
         <HTabs
           _tabs={[
             {
-              id: "headers",
-              title: "Headers",
+              id: 'headers',
+              title: 'Headers',
               component: (
                 <KeyValueBox
                   fields={request.headers}
@@ -135,8 +135,8 @@ function Playground({
               ),
             },
             {
-              id: "params",
-              title: "Params",
+              id: 'params',
+              title: 'Params',
               component: (
                 <KeyValueBox
                   fields={request.params}
@@ -147,19 +147,19 @@ function Playground({
               ),
             },
             {
-              id: "body",
-              title: "Body",
+              id: 'body',
+              title: 'Body',
               component: (
                 <Editor
                   height="25vh"
                   theme="vs-dark"
                   defaultValue={request.body}
-                  defaultLanguage={"json"}
+                  defaultLanguage={'json'}
                   options={{
                     minimap: {
                       enabled: false,
                     },
-                    matchBrackets: "always",
+                    matchBrackets: 'always',
                     bracketPairColorization: {
                       enabled: true,
                       independentColorPoolPerBracketType: true,
@@ -188,11 +188,11 @@ function Playground({
                 <span
                   className={
                     response?.status >= 200 && response?.status < 300
-                      ? "text-green-500"
-                      : "text-red-500"
+                      ? 'text-green-500'
+                      : 'text-red-500'
                   }
                 >
-                  {" "}
+                  {' '}
                   {response?.status}
                 </span>
               </TypographyP>
@@ -206,7 +206,7 @@ function Playground({
 
             <span className="ml-4 prose">
               <TypographyP>
-                Size:{" "}
+                Size:{' '}
                 <span className="prose">
                   {prettyBytes(
                     new TextEncoder().encode(JSON.stringify(response?.data))
@@ -222,15 +222,15 @@ function Playground({
         <HTabs
           _tabs={[
             {
-              id: "json",
-              title: "JSON",
+              id: 'json',
+              title: 'JSON',
               component: (
                 <div className="w-full h-full p-4 rounded bg-neutral-100">
                   <pre className="overflow-x-scroll leading-7 text-white">
                     <Editor
                       height="25vh"
                       theme="vs-dark"
-                      defaultLanguage={"json"}
+                      defaultLanguage={'json'}
                       value={JSON.stringify(response?.data, null, 2)}
                       options={{
                         readOnly: true,
@@ -244,8 +244,8 @@ function Playground({
               ),
             },
             {
-              id: "headers",
-              title: "Headers",
+              id: 'headers',
+              title: 'Headers',
               component: (
                 <KeyValueBox
                   fields={
@@ -266,13 +266,13 @@ function Playground({
               ),
             },
             {
-              id: "raw",
-              title: "Raw",
+              id: 'raw',
+              title: 'Raw',
               component: (
                 <div className="w-full h-full p-4 rounded ">
                   <p className="prose">
                     {
-                      typeof response?.data === "string"
+                      typeof response?.data === 'string'
                         ? response?.data
                         : JSON.stringify(response?.data, null, 2)
 
@@ -283,8 +283,8 @@ function Playground({
               ),
             },
             {
-              id: "preview",
-              title: "Preview",
+              id: 'preview',
+              title: 'Preview',
               component: (
                 <div className="w-full h-full p-4 rounded ">
                   <iframe srcDoc={response?.data} className="w-full h-full" />

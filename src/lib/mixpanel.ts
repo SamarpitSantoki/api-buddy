@@ -1,9 +1,9 @@
-import mixpanel, { Dict, Query } from "mixpanel-browser";
+import mixpanel, { Dict, Query } from 'mixpanel-browser';
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env.NODE_ENV === 'production';
 const token = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
 
-console.log("token", token);
+console.log('token', token);
 
 
 mixpanel.init(token!);

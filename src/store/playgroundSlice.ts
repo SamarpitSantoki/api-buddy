@@ -1,9 +1,9 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "./store";
-import axios from "axios";
-import { IPlayground } from "@/types/playgroundTypes";
-import { TGetRequestResponse } from "@/types/types";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from './store';
+import axios from 'axios';
+import { IPlayground } from '@/types/playgroundTypes';
+import { TGetRequestResponse } from '@/types/types';
 
 // Define a type for the slice state
 interface PlaygroundSlice {
@@ -20,16 +20,16 @@ const initialState: PlaygroundSlice = {
 };
 
 export const getPlaygrounds = createAsyncThunk(
-  "playground/getPlaygrounds",
+  'playground/getPlaygrounds',
   async (workspaceId: string) => {
-    const res = await axios.get("/api/request?workspaceId=" + workspaceId);
+    const res = await axios.get('/api/request?workspaceId=' + workspaceId);
 
     return res.data.data;
   }
 );
 
 export const playgroundSlice = createSlice({
-  name: "playground",
+  name: 'playground',
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
@@ -67,7 +67,7 @@ export const playgroundSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(getPlaygrounds.fulfilled, (state, action) => {
-      console.log("check this", action.payload);
+      console.log('check this', action.payload);
 
       state.playgrounds = action.payload.map(
         (playground: TGetRequestResponse) => ({

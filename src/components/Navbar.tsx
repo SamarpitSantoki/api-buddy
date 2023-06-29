@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Button } from "./ui/button";
-import { TypographyH1, TypographyH3 } from "./ui/typography";
-import { SignIn, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { Button } from './ui/button';
+import { TypographyH3 } from './ui/typography';
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -25,7 +25,7 @@ export default function Navbar() {
         </Link>
       </div>
 
-      {pathname.includes("/workspaces/") ? (
+      {pathname.includes('/workspaces/') ? (
         <div>
           Press <kbd>Ctrl</kbd> + <kbd>Space</kbd> to open the command palette
         </div>

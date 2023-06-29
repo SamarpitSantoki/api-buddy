@@ -1,5 +1,5 @@
-import prisma from "@/db/prisma";
-import { User } from "@clerk/nextjs/dist/types/server";
+import prisma from '@/db/prisma';
+import { User } from '@clerk/nextjs/dist/types/server';
 
 export default function syncUserInDb(user: User) {
   const {
@@ -13,7 +13,7 @@ export default function syncUserInDb(user: User) {
 
   prisma.user.upsert({
     where: {
-      id: id || "new",
+      id: id || 'new',
     },
     update: {
       firstName,

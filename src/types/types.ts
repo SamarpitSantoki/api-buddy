@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 
 export interface IRequest {
   workspaceId: string;
@@ -34,4 +34,4 @@ export type TGetRequestResponse = Prisma.RequestGetPayload<{
   };
 }>;
 
-export type TCreateRequestType = Prisma.RequestCreateArgs["data"];
+export type TCreateRequestType = Prisma.RequestCreateArgs['data'];

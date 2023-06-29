@@ -1,11 +1,11 @@
-import axios from "axios";
-import { ReactElement, ReactNode } from "react";
-import { Resend } from "resend";
+import axios from 'axios';
+import { ReactElement, ReactNode } from 'react';
+import { Resend } from 'resend';
 
-const resend = new Resend("re_Wy3RYXDT_Gn731hVVbq4qZHao4xirzppg");
+const resend = new Resend('re_Wy3RYXDT_Gn731hVVbq4qZHao4xirzppg');
 
 export enum MailType {
-  INVITE = "INVITE",
+  INVITE = 'INVITE',
 }
 
 export type SendMailProps = {
@@ -16,18 +16,18 @@ export type SendMailProps = {
 
 const sendMail = ({ to, react, type }: SendMailProps) => {
   let payload = {
-    from: "",
-    to: "",
-    subject: "",
+    from: '',
+    to: '',
+    subject: '',
     react,
   };
 
   switch (type) {
     case MailType.INVITE:
       payload = {
-        from: "support@apibuddy.samarpit.dev",
+        from: 'support@apibuddy.samarpit.dev',
         to,
-        subject: "You have been invited to join a workspace",
+        subject: 'You have been invited to join a workspace',
         react,
       };
       break;
@@ -43,17 +43,17 @@ const sendMail = ({ to, react, type }: SendMailProps) => {
       } catch (e: any) {
         console.log(e.message);
 
-        if (e.message === "Socket connection timeout") {
-          console.log("Trying again");
+        if (e.message === 'Socket connection timeout') {
+          console.log('Trying again');
 
           sendMail({ to, react, type });
         }
       }
     })();
   } catch (e: any) {
-    console.log("Error is gere");
-    if (e.message === "Socket connection timeout") {
-      console.log("Socket connection timeout");
+    console.log('Error is gere');
+    if (e.message === 'Socket connection timeout') {
+      console.log('Socket connection timeout');
     }
   }
 };

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 export async function POST(request: Request) {
   const req = await request.json();
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       status: true,
     };
   } catch (e: any) {
-    console.log("erorr ", e);
+    console.log('erorr ', e);
 
     if (e.response) {
       response = {
