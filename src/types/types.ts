@@ -17,7 +17,7 @@ export interface IRequest {
   hasExamples: boolean;
 }
 
-export type TGetRequestResponse = Prisma.RequestGetPayload<{
+export type TGetRequestResponse = Prisma.requestGetPayload<{
   select: {
     id: true;
     headerParams: true;
@@ -34,4 +34,4 @@ export type TGetRequestResponse = Prisma.RequestGetPayload<{
   };
 }>;
 
-export type TCreateRequestType = Prisma.RequestCreateArgs['data'];
+export type TCreateRequestType = Prisma.requestCreateArgs['data'];
