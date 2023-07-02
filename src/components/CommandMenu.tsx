@@ -33,7 +33,7 @@ function CommandMenu({ commands, handleCommand }: ICommandMenu) {
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === 'J' || (e.key === ' ' && e.ctrlKey)) {
+      if (e.key === ' ' && e.ctrlKey) {
         e.preventDefault();
         setOpen((open) => !open);
         setSelectedCommand('');

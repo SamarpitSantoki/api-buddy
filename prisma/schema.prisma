@@ -8,21 +8,23 @@ datasource db {
   relationMode = "prisma"
 }
 
-model User {
+model user {
   id         String      @id @default(uuid())
+  clerkId    String      @unique
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   email      String      @unique
   firstName  String?
   lastName   String?
   password   String?
-  workspaces Workspace[]
-  teams      Team[]
+  workspaces workspace[]
+  teams      team[]
 
+  @@index([clerkId], map: "clerkId")
   @@map("users")
 }
 
-model Request {
+model request {
   id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -41,17 +43,18 @@ model Request {
   workspaceId     String
   hasExamples     Boolean  @default(false)
 
-  exampleOf   Request?  @relation("ExampleOf", fields: [exampleOfId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  exampleOf   request?  @relation("ExampleOf", fields: [exampleOfId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   exampleOfId String?
-  examples    Request[] @relation("ExampleOf")
+  examples    request[] @relation("ExampleOf")
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  workspace workspace @relation(fields: [workspaceId], references: [id])
 
   @@index([workspaceId], map: "workspaceId")
   @@index([exampleOfId], map: "exampleOfId")
+	@@map("Request")
 }
 
-model Workspace {
+model workspace {
   id          String    @id @default(uuid())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -59,17 +62,24 @@ model Workspace {
   description String?
   type        String    @default("PERSONAL")
   userId      String
-  requests    Request[]
-  user        User      @relation(fields: [userId], references: [id])
+  requests    request[]
+  teamId      String?
+  team        team?     @relation(fields: [teamId], references: [id])
+  user        user      @relation(fields: [userId], references: [id])
 
+  
   @@index([userId], map: "userId")
   @@map("workspaces")
+  @@index([teamId])
 }
 
-model Team {
-  id        String   @id @default(uuid())
+model team {
+  id        String      @id @default(uuid())
   AdminId   String
-  users     User[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  users     user[]
+  workspace workspace[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("teams")
 }

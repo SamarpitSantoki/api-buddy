@@ -1,21 +1,60 @@
 
+import prisma from '@/db/prisma';
+import { auth } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
 
-const resend = new Resend('re_gowoCR3s_KHFmVcVZYc5X6WxRHNvoDsn6');
+export const GET = async (request: Request) => {
+  const { userId } = auth();
 
+  if (!userId) {
+    return NextResponse.redirect('/404');
+  }
 
-export async function POST() {
+  const queryParams = new URL(request.url).searchParams;
+
+  const email = queryParams.get('email') || '';
+  const teamId = queryParams.get('teamId') || '';
+
+  if (!email || !teamId) {
+    return NextResponse.redirect('/404');
+  }
+
   try {
-    const data = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: 'samarpit.santoki@gmail.com',
-      subject: 'Hello World',
-      html: '<p>Congrats on sending your <strong>first email</strong>!</p>'
+    let user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
     });
 
-    return NextResponse.json(data);
-  } catch (error) {
-    return NextResponse.json({ error });
-  }
-}
+    if (!user?.clerkId) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          clerkId: userId,
+        },
+      });
+    }
+
+    const team = await prisma.team.update({
+      where: {
+        id: teamId,
+      },
+      data: {
+        users: {
+          connect: {
+            id: user?.id,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      status: true,
+      data: team,
+    });
+  } catch (e) {}
+
+  return NextResponse.json({
+    status: false,
+  });
+};

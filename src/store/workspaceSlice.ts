@@ -58,6 +58,17 @@ export const createWorkspace = createAsyncThunk(
   }
 );
 
+export const deleteWorkspace = createAsyncThunk(
+  'workspace/deleteWorkspace',
+  async (id: string) => {
+    const response = await fetch(`/api/workspace?id=${id}`, {
+      method: 'DELETE',
+    });
+    const res = await response.json();
+    return res;
+  }
+);
+
 export const workspaceSlice = createSlice({
   name: 'workspace',
   initialState,
@@ -67,7 +78,7 @@ export const workspaceSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getWorkspaces.pending, (state, action) => {
+    builder.addCase(getWorkspaces.pending, (state) => {
       state.isFetching = true;
       state.workspaces = [];
     });
@@ -76,18 +87,30 @@ export const workspaceSlice = createSlice({
       state.workspaces = action.payload.data;
       state.isFetching = false;
     });
-    builder.addCase(getWorkspaces.rejected, (state, action) => {
+    builder.addCase(getWorkspaces.rejected, (state) => {
       state.isFetching = false;
     });
-    builder.addCase(createWorkspace.pending, (state, action) => {
+    builder.addCase(createWorkspace.pending, (state) => {
       state.isCreating = true;
     });
     builder.addCase(createWorkspace.fulfilled, (state, action) => {
       state.isCreating = false;
       state.workspaces.push(action.payload.data);
     });
-    builder.addCase(createWorkspace.rejected, (state, action) => {
+    builder.addCase(createWorkspace.rejected, (state) => {
       state.isCreating = false;
+    });
+    builder.addCase(deleteWorkspace.pending, (state) => {
+      state.isUpdating = true;
+    });
+    builder.addCase(deleteWorkspace.fulfilled, (state, action) => {
+      state.isUpdating = false;
+      state.workspaces = state.workspaces.filter(
+        (w) => w.id !== action.payload.data.id
+      );
+    });
+    builder.addCase(deleteWorkspace.rejected, (state) => {
+      state.isUpdating = false;
     });
   },
 });

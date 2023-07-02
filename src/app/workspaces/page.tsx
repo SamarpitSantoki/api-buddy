@@ -5,16 +5,20 @@ import { FolderPlus, Loader2, PlusSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateDialog from '@/components/Workspace/CreateDialog';
 import { TypographyMuted } from '@/components/ui/typography';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAppDispatch } from '@/store/hooks';
-import { createWorkspace, getWorkspaces } from '@/store/workspaceSlice';
+import {
+  createWorkspace,
+  deleteWorkspace,
+  getWorkspaces,
+} from '@/store/workspaceSlice';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import Link from 'next/link';
 import { useAuth } from '@clerk/nextjs';
 import { Mixpanel } from '@/lib/mixpanel';
 import CommandMenu from '@/components/CommandMenu';
 import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
+import { useToast } from '@/components/ui/use-toast';
 
 const commands = [
   {
@@ -31,7 +35,7 @@ type Inputs = {
 
 const Workspaces = () => {
   const { userId } = useAuth();
-
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
@@ -58,13 +62,17 @@ const Workspaces = () => {
     (state: RootState) => state.workspace
   );
 
-  
-
   const handleCreateWorkspaceSubmit: SubmitHandler<Inputs> = (data) => {
     if (!userId) return alert('User not found');
 
     dispatch(createWorkspace({ ...data, userId }));
     document.getElementById('create-new-workspace')?.click();
+    toast({
+      title: 'Workspace created',
+      description: 'Workspace created successfully',
+      duration: 5000,
+      variant: 'default',
+    });
   };
 
   //   fetch workspaces on mount
@@ -75,7 +83,6 @@ const Workspaces = () => {
   }, []);
 
   const handleCommand = (command: string) => {
-
     switch (command) {
       case 'create-workspace':
         document.getElementById('create-new-workspace')?.click();
@@ -83,6 +90,16 @@ const Workspaces = () => {
       default:
         break;
     }
+  };
+
+  const handleDeleteWorkspace = (id: string) => {
+    dispatch(deleteWorkspace(id));
+    toast({
+      title: 'Workspace deleted',
+      description: 'Workspace deleted successfully',
+      duration: 5000,
+      variant: 'destructive',
+    });
   };
 
   return (
@@ -102,15 +119,15 @@ const Workspaces = () => {
         ) : (
           <>
             {workspaces.map((workspace, i) => (
-              <Link href={`/workspaces/${workspace.id}`} key={i}>
-                <ProjectCard
-                  key={i}
-                  name={workspace.name}
-                  type={workspace.type}
-                  requestsCount={workspace.requests?.length || 0}
-                  editedAt={workspace.updatedAt}
-                />
-              </Link>
+              <ProjectCard
+                key={i}
+                name={workspace.name}
+                type={workspace.type}
+                id={workspace.id}
+                requestsCount={workspace.requests?.length || 0}
+                editedAt={workspace.updatedAt}
+                handleDeleteWorkspace={handleDeleteWorkspace}
+              />
             ))}
             <CreateDialog
               header="Create a new workspace"

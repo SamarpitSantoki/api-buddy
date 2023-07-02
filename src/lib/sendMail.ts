@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ReactElement, ReactNode } from 'react';
 import { Resend } from 'resend';
 
-const resend = new Resend('re_Wy3RYXDT_Gn731hVVbq4qZHao4xirzppg');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export enum MailType {
   INVITE = 'INVITE',

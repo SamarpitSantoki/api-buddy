@@ -1,19 +1,15 @@
 import prisma from '@/db/prisma';
 import { User } from '@clerk/nextjs/dist/types/server';
 
-export default function syncUserInDb(user: User) {
-  const {
-    id,
-    firstName,
-    lastName,
-    emailAddresses,
-    username,
-    primaryEmailAddressId,
-  } = user;
+export default async function syncUserInDb(user: User) {
+  const { id, firstName, lastName, emailAddresses, primaryEmailAddressId } =
+    user;
 
-  prisma.user.upsert({
+  await prisma.user.upsert({
     where: {
-      id: id || 'new',
+      email:
+        emailAddresses.find((email) => email.id === primaryEmailAddressId)
+          ?.emailAddress || emailAddresses[0].emailAddress,
     },
     update: {
       firstName,
@@ -21,7 +17,7 @@ export default function syncUserInDb(user: User) {
       email: emailAddresses[0].emailAddress,
     },
     create: {
-      id,
+      clerkId: id,
       firstName,
       lastName,
       email:

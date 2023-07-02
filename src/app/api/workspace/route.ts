@@ -2,21 +2,27 @@ import MailInvite from '@/components/Email/InviteMail';
 import prisma from '@/db/prisma';
 import sendMail, { MailType } from '@/lib/sendMail';
 import syncUserInDb from '@/lib/syncUserWithDb';
-import { auth } from '@clerk/nextjs';
+import { auth, currentUser } from '@clerk/nextjs';
 
 export async function POST(request: Request) {
-  // const { userId, user } = auth();
-  const userId = 'asdasd';
+  const { userId } = auth();
+
+  // const userId = 'asdasd';
+  const user = await currentUser();
 
   if (!userId) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  // if (user?.id) {
-  //   syncUserInDb(user);
-  // }
+  if (user?.id) {
+    await syncUserInDb(user);
+  }
 
   const req = await request.json();
+  const invites = req.invites;
+
+  delete req.invites;
+
   let response = {};
 
   if (!req.name) {
@@ -28,24 +34,9 @@ export async function POST(request: Request) {
     );
   }
 
-  // if there are invites send them
-  if (req.invites) {
-    req.invites.map((item: any) => {
-      console.log(item, 'ITEMCHECK');
+  let workspaceId;
 
-      try {
-        sendMail({
-          to: item.email,
-          type: MailType.INVITE,
-          react: MailInvite({}),
-        });
-      } catch (e) {
-        console.log('Erorr is here');
-      }
-    });
-    delete req.invites;
-  }
-
+  // create workspace
   try {
     const entry = await prisma.workspace.upsert({
       where: {
@@ -54,6 +45,8 @@ export async function POST(request: Request) {
       update: req,
       create: req,
     });
+
+    workspaceId = entry.id;
 
     response = {
       data: entry,
@@ -64,9 +57,46 @@ export async function POST(request: Request) {
       data: [],
       status: false,
     };
-
-    console.log(e);
   }
+
+  // if there are invites create team and send invites
+  if (invites) {
+    const team = await prisma.team.create({
+      data: {
+        AdminId: userId,
+        users: {
+          connect: [
+            {
+              clerkId: userId,
+            },
+          ],
+        },
+        workspace: {
+          connect: {
+            id: workspaceId,
+          },
+        },
+      },
+    });
+
+    invites.map((item: any) => {
+      console.log(item, 'ITEMCHECK');
+
+      try {
+        sendMail({
+          to: item.email,
+          type: MailType.INVITE,
+          react: MailInvite({
+            inviteLink: `http://localhost:3000/invite/?teamId=${team.id}&email=${item.email}`,
+          }),
+        });
+      } catch (e) {
+        console.log('Erorr is here');
+      }
+    });
+    delete req.invites;
+  }
+
   return new Response(JSON.stringify(response));
 }
 
@@ -96,12 +126,30 @@ export async function GET(request: Request) {
       },
     });
 
+    const teams = await prisma.team.findMany({
+      where: {
+        users: {
+          some: {
+            clerkId: userId || 'example',
+          },
+        },
+      },
+      select: {
+        workspace: true,
+      },
+    });
+
+    let teamWorkspaces: any = [];
+
+    teams.map((item) => {
+      teamWorkspaces = [...teamWorkspaces, ...item.workspace];
+    });
+
     response = {
-      data: entry,
+      data: [...entry, ...teamWorkspaces],
       status: true,
     };
   } catch (e) {
-    console.log(e);
     response = {
       data: [],
       status: false,
@@ -114,6 +162,8 @@ export async function GET(request: Request) {
 export async function DELETE(request: Request) {
   const { userId } = auth();
 
+  const queryParams = new URL(request.url).searchParams;
+
   if (!userId) {
     return new Response('Unauthorized', { status: 401 });
   }
@@ -121,11 +171,15 @@ export async function DELETE(request: Request) {
   let response = {};
 
   try {
-    const req = await request.json();
+    const id = queryParams.get('id');
+
+    if (!id) {
+      return new Response('Unauthorized', { status: 401 });
+    }
 
     const entry = await prisma.workspace.delete({
       where: {
-        id: req?.id || '0',
+        id,
       },
     });
 
@@ -134,7 +188,6 @@ export async function DELETE(request: Request) {
       status: true,
     };
   } catch (e) {
-    console.log(e);
     response = {
       data: [],
       status: false,
